@@ -1,0 +1,134 @@
+[
+  {
+    "id": 1,
+    "name": "Spaghetti Bolognese",
+    "category": "Italienisch",
+    "prepTime": 30,
+    "difficulty": "einfach",
+    "servings": 4,
+    "ingredients": ["Spaghetti", "Hackfleisch", "Tomaten", "Zwiebeln", "Knoblauch", "Olivenöl"],
+    "allergens": ["Gluten"],
+    "tags": ["familienfreundlich", "klassisch"]
+  },
+  {
+    "id": 2,
+    "name": "Hähnchencurry mit Reis",
+    "category": "Asiatisch",
+    "prepTime": 35,
+    "difficulty": "mittel",
+    "servings": 4,
+    "ingredients": ["Hähnchenbrustfilet", "Currypaste", "Kokosmilch", "Reis", "Gemüse"],
+    "allergens": [],
+    "tags": ["exotisch", "gesund"]
+  },
+  {
+    "id": 3,
+    "name": "Gemüselasagne",
+    "category": "Vegetarisch",
+    "prepTime": 50,
+    "difficulty": "mittel",
+    "servings": 6,
+    "ingredients": ["Lasagneplatten", "Zucchini", "Aubergine", "Tomaten", "Mozzarella", "Béchamelsauce"],
+    "allergens": ["Gluten", "Milchprodukte"],
+    "tags": ["vegetarisch", "familienfreundlich"]
+  },
+  {
+    "id": 4,
+    "name": "Lachsfilet mit Ofengemüse",
+    "category": "Fisch",
+    "prepTime": 40,
+    "difficulty": "einfach",
+    "servings": 4,
+    "ingredients": ["Lachsfilet", "Kartoffeln", "Paprika", "Zucchini", "Olivenöl", "Kräuter"],
+    "allergens": ["Fisch"],
+    "tags": ["gesund", "leicht"]
+  },
+  {
+    "id": 5,
+    "name": "Pizza Margherita",
+    "category": "Italienisch",
+    "prepTime": 25,
+    "difficulty": "einfach",
+    "servings": 4,
+    "ingredients": ["Pizzateig", "Tomatensauce", "Mozzarella", "Basilikum", "Olivenöl"],
+    "allergens": ["Gluten", "Milchprodukte"],
+    "tags": ["kinder-liebling", "klassisch"]
+  },
+  {
+    "id": 6,
+    "name": "Chili con Carne",
+    "category": "Mexikanisch",
+    "prepTime": 45,
+    "difficulty": "einfach",
+    "servings": 6,
+    "ingredients": ["Hackfleisch", "Kidneybohnen", "Tomaten", "Paprika", "Zwiebeln", "Chili"],
+    "allergens": [],
+    "tags": ["herzhaft", "familienfreundlich"]
+  },
+  {
+    "id": 7,
+    "name": "Gemüsepfanne mit Tofu",
+    "category": "Vegan",
+    "prepTime": 25,
+    "difficulty": "einfach",
+    "servings": 4,
+    "ingredients": ["Tofu", "Brokkoli", "Paprika", "Karotten", "Sojasauce", "Ingwer"],
+    "allergens": ["Soja"],
+    "tags": ["vegan", "gesund", "schnell"]
+  },
+  {
+    "id": 8,
+    "name": "Schnitzel mit Kartoffelsalat",
+    "category": "Deutsch",
+    "prepTime": 40,
+    "difficulty": "mittel",
+    "servings": 4,
+    "ingredients": ["Schweineschnitzel", "Panade", "Kartoffeln", "Mayonnaise", "Gurken"],
+    "allergens": ["Gluten", "Ei"],
+    "tags": ["traditionell", "familienfreundlich"]
+  },
+  {
+    "id": 9,
+    "name": "Pasta mit Pesto und Kirschtomaten",
+    "category": "Italienisch",
+    "prepTime": 20,
+    "difficulty": "einfach",
+    "servings": 4,
+    "ingredients": ["Pasta", "Pesto", "Kirschtomaten", "Parmesan", "Pinienkerne"],
+    "allergens": ["Gluten", "Milchprodukte", "Nüsse"],
+    "tags": ["schnell", "vegetarisch"]
+  },
+  {
+    "id": 10,
+    "name": "Rindergeschnetzeltes mit Spätzle",
+    "category": "Deutsch",
+    "prepTime": 35,
+    "difficulty": "mittel",
+    "servings": 4,
+    "ingredients": ["Rindfleisch", "Champignons", "Sahne", "Spätzle", "Zwiebeln"],
+    "allergens": ["Gluten", "Milchprodukte"],
+    "tags": ["herzhaft", "klassisch"]
+  },
+  {
+    "id": 11,
+    "name": "Gemüsesuppe mit Brot",
+    "category": "Suppe",
+    "prepTime": 30,
+    "difficulty": "einfach",
+    "servings": 4,
+    "ingredients": ["Karotten", "Sellerie", "Kartoffeln", "Gemüsebrühe", "Brot"],
+    "allergens": ["Gluten"],
+    "tags": ["gesund", "leicht", "vegetarisch"]
+  },
+  {
+    "id": 12,
+    "name": "Tacos mit Hähnchen",
+    "category": "Mexikanisch",
+    "prepTime": 30,
+    "difficulty": "einfach",
+    "servings": 4,
+    "ingredients": ["Hähnchenbrust", "Tortillas", "Salat", "Tomaten", "Käse", "Sauerrahm"],
+    "allergens": ["Gluten", "Milchprodukte"],
+    "tags": ["familienfreundlich", "interaktiv"]
+  }
+]

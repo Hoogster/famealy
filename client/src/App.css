@@ -1,0 +1,267 @@
+.App {
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.App-header {
+  text-align: center;
+  color: white;
+  margin-bottom: 40px;
+}
+
+.App-header h1 {
+  font-size: 3.5em;
+  margin-bottom: 10px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.App-header p {
+  font-size: 1.3em;
+  opacity: 0.9;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.preferences-section {
+  background: white;
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  margin-bottom: 30px;
+}
+
+.preferences-section h2 {
+  color: #667eea;
+  margin-bottom: 25px;
+  font-size: 1.8em;
+}
+
+.preference-group {
+  margin-bottom: 25px;
+}
+
+.preference-group label {
+  display: block;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 10px;
+  font-size: 1.1em;
+}
+
+.preference-group input,
+.preference-group select {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  font-size: 16px;
+  transition: border-color 0.3s;
+}
+
+.preference-group input:focus,
+.preference-group select:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.checkbox-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.tag-button {
+  padding: 10px 20px;
+  border: 2px solid #e0e0e0;
+  background: white;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.tag-button:hover {
+  border-color: #667eea;
+  background: #f5f7ff;
+}
+
+.tag-button.active {
+  background: #667eea;
+  color: white;
+  border-color: #667eea;
+}
+
+.suggest-button {
+  width: 100%;
+  padding: 18px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 15px;
+  font-size: 1.3em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  margin-top: 20px;
+}
+
+.suggest-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+}
+
+.suggest-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.suggestions-section {
+  background: white;
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.suggestions-section h2 {
+  color: #667eea;
+  margin-bottom: 25px;
+  font-size: 1.8em;
+}
+
+.meals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 25px;
+}
+
+.meal-card {
+  border: 2px solid #f0f0f0;
+  border-radius: 15px;
+  padding: 25px;
+  background: #fafafa;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.meal-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.meal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 15px;
+}
+
+.meal-header h3 {
+  color: #333;
+  font-size: 1.4em;
+  margin: 0;
+  flex: 1;
+}
+
+.category-badge {
+  background: #667eea;
+  color: white;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.85em;
+  font-weight: 600;
+  white-space: nowrap;
+  margin-left: 10px;
+}
+
+.meal-info {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin-bottom: 15px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.info-item {
+  color: #666;
+  font-size: 0.95em;
+}
+
+.meal-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.tag {
+  background: #e8ecff;
+  color: #667eea;
+  padding: 5px 12px;
+  border-radius: 15px;
+  font-size: 0.85em;
+  font-weight: 500;
+}
+
+.ingredients {
+  margin-top: 15px;
+  color: #333;
+}
+
+.ingredients strong {
+  display: block;
+  margin-bottom: 8px;
+  color: #667eea;
+}
+
+.ingredients ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.ingredients li {
+  padding: 5px 0;
+  padding-left: 20px;
+  position: relative;
+}
+
+.ingredients li:before {
+  content: "•";
+  color: #667eea;
+  font-weight: bold;
+  position: absolute;
+  left: 5px;
+}
+
+.allergens {
+  margin-top: 15px;
+  padding: 10px;
+  background: #fff3cd;
+  border-radius: 8px;
+  font-size: 0.9em;
+  color: #856404;
+}
+
+.allergens strong {
+  display: block;
+  margin-bottom: 5px;
+}
+
+@media (max-width: 768px) {
+  .App-header h1 {
+    font-size: 2.5em;
+  }
+
+  .meals-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .preferences-section,
+  .suggestions-section {
+    padding: 20px;
+  }
+}
