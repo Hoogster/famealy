@@ -7,8 +7,10 @@
     "server": "node server/index.js",
     "client": "cd client && npm start",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "build": "cd client && npm run build",
-    "start": "node server/index.js"
+    "install-client": "cd client && npm install",
+    "build": "npm run install-client && cd client && npm run build",
+    "start": "node server/index.js",
+    "vercel-build": "npm run install-client && cd client && npm run build"
   },
   "keywords": ["meal", "family", "menu", "suggestions"],
   "author": "",
