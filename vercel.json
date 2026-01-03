@@ -2,20 +2,10 @@
   "version": 2,
   "buildCommand": "npm run vercel-build",
   "outputDirectory": "client/build",
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "/server/index.js"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/client/build/$1"
+      "source": "/api/:path*",
+      "destination": "/api"
     }
-  ],
-  "functions": {
-    "server/index.js": {
-      "memory": 1024,
-      "maxDuration": 10
-    }
-  }
+  ]
 }
