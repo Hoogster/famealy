@@ -27,7 +27,9 @@ app.post('/api/suggestions', (req, res) => {
     allergens = [],
     preferences = [],
     difficulty = 'alle',
-    count = 3
+    count = 3,
+    preferBalanced = true,
+    preferPromotions = true
   } = req.body;
 
   // Filter meals based on criteria
@@ -75,9 +77,32 @@ app.post('/api/suggestions', (req, res) => {
     });
   }
 
-  // Shuffle and pick random meals
-  const shuffled = filteredMeals.sort(() => 0.5 - Math.random());
-  const suggestions = shuffled.slice(0, count);
+  // Score meals based on preferences
+  const scoredMeals = filteredMeals.map(meal => {
+    let score = 0;
+
+    // Prefer balanced meals
+    if (preferBalanced && meal.nutrition?.balanced) {
+      score += 10;
+    }
+
+    // Prefer meals with promotions
+    if (preferPromotions) {
+      const promoCount = meal.ingredients.filter(ing => ing.onPromo).length;
+      score += promoCount * 2;
+    }
+
+    return { ...meal, score };
+  });
+
+  // Sort by score and add some randomness
+  const sortedMeals = scoredMeals.sort((a, b) => {
+    const scoreDiff = b.score - a.score;
+    // Add randomness while preferring higher scores
+    return scoreDiff + (Math.random() - 0.5) * 5;
+  });
+
+  const suggestions = sortedMeals.slice(0, count);
 
   res.json({
     suggestions,
@@ -95,6 +120,68 @@ app.get('/api/categories', (req, res) => {
 app.get('/api/allergens', (req, res) => {
   const allergens = [...new Set(mealsData.flatMap(meal => meal.allergens))];
   res.json(allergens);
+});
+
+// Search for recipes online
+app.get('/api/recipe/search', async (req, res) => {
+  const { mealName } = req.query;
+
+  if (!mealName) {
+    return res.status(400).json({ error: 'Meal name is required' });
+  }
+
+  // Return search URL for the recipe
+  // Using Swiss-specific recipe sites
+  const searchUrls = [
+    {
+      name: 'Betty Bossi',
+      url: `https://www.bettybossi.ch/de/Suche?q=${encodeURIComponent(mealName)}`
+    },
+    {
+      name: 'Swissmilk',
+      url: `https://www.swissmilk.ch/de/rezepte-kochideen/?q=${encodeURIComponent(mealName)}`
+    },
+    {
+      name: 'Fooby (Coop)',
+      url: `https://fooby.ch/de/rezepte.html?q=${encodeURIComponent(mealName)}`
+    },
+    {
+      name: 'Google Rezepte',
+      url: `https://www.google.com/search?q=${encodeURIComponent(mealName + ' Rezept Schweiz')}`
+    }
+  ];
+
+  res.json({
+    mealName,
+    searchUrls
+  });
+});
+
+// Export shopping list
+app.post('/api/shopping-list/export', (req, res) => {
+  const { ingredients, mealName } = req.body;
+
+  if (!ingredients || !Array.isArray(ingredients)) {
+    return res.status(400).json({ error: 'Ingredients array is required' });
+  }
+
+  // Format for Family Wall (simple text format)
+  const textFormat = ingredients
+    .map(ing => `${ing.name} - ${ing.amount}`)
+    .join('\n');
+
+  // CSV format
+  const csvFormat = 'Zutat,Menge,Aktion,Händler\n' +
+    ingredients
+      .map(ing => `"${ing.name}","${ing.amount}","${ing.onPromo ? 'Ja' : 'Nein'}","${ing.retailer || '-'}"`)
+      .join('\n');
+
+  res.json({
+    mealName,
+    textFormat,
+    csvFormat,
+    count: ingredients.length
+  });
 });
 
 // Serve static files in production

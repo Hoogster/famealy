@@ -1,15 +1,29 @@
 # 🍽️ Famealy - Familienmenü Vorschläge
 
-Eine moderne Web-Anwendung, die personalisierte Menüvorschläge für Familien generiert. Berücksichtigt Familiengröße, Allergene, Präferenzen und Schwierigkeitsgrad.
+Eine moderne Web-Anwendung, die **ausgewogene** Menüvorschläge für Familien generiert, basierend auf **Aktionen Schweizer Detailhändler** (Migros, Coop, Denner, Aldi Suisse, Lidl Schweiz). Mit integrierter Rezeptsuche und Export zur Family Wall App.
 
 ## ✨ Features
 
-- 🎲 **Intelligente Vorschläge**: Automatische Menüvorschläge basierend auf Ihren Präferenzen
-- 👨‍👩‍👧‍👦 **Familienfreundlich**: Anpassung an Familiengröße (1-12 Personen)
-- ⚠️ **Allergen-Filter**: Ausschluss von Gerichten mit bestimmten Allergenen
-- 🌍 **Vielfältige Küchen**: Italienisch, Deutsch, Asiatisch, Mexikanisch, Vegan und mehr
-- 📊 **Schwierigkeitsgrade**: Wählen Sie zwischen einfach, mittel oder allen Gerichten
-- 🎨 **Modernes UI**: Responsive Design mit ansprechendem Interface
+### 🏷️ Schweizer Aktionen
+- **Aktionsbasierte Vorschläge**: Bevorzugung von Gerichten mit Zutaten im Angebot
+- **Top Schweizer Händler**: Migros, Coop, Denner, Aldi Suisse, Lidl Schweiz
+- **Einsparungen sichtbar**: Klare Markierung von Aktionsprodukten
+
+### 🥗 Ausgewogene Ernährung
+- **Nährwert-Balance**: Priorisierung ausgewogener Mahlzeiten
+- **Kalorienwerte**: Transparente Nährwertangaben
+- **Vielfältige Küchen**: Schweizer Klassiker, Italienisch, Asiatisch, Mexikanisch, Vegan
+
+### 📖 Rezeptsuche & Integration
+- **Online Rezeptsuche**: Direktlinks zu Betty Bossi, Swissmilk, Fooby (Coop)
+- **Family Wall Integration**: Export der Einkaufsliste zum Kopieren
+- **Ein-Klick Export**: Zutaten direkt in die Zwischenablage
+
+### 🎯 Weitere Features
+- 👨‍👩‍👧‍👦 **Familiengrösse**: Anpassung an 1-12 Personen
+- ⚠️ **Allergen-Filter**: Ausschluss von Gluten, Milch, Nüssen, etc.
+- 📊 **Schwierigkeitsgrade**: Einfach bis mittel
+- 🎨 **Modernes UI**: Responsive Swiss Design
 
 ## 🚀 Schnellstart
 
@@ -92,16 +106,18 @@ famealy/
 Alle verfügbaren Mahlzeiten abrufen
 
 ### POST `/api/suggestions`
-Personalisierte Menüvorschläge generieren
+Personalisierte Menüvorschläge generieren mit Aktions- und Balance-Priorisierung
 
 **Request Body:**
 ```json
 {
   "familySize": 4,
   "allergens": ["Gluten", "Nüsse"],
-  "preferences": ["Italienisch", "vegetarisch"],
+  "preferences": ["Schweizer Klassiker", "vegetarisch"],
   "difficulty": "einfach",
-  "count": 3
+  "count": 3,
+  "preferBalanced": true,
+  "preferPromotions": true
 }
 ```
 
@@ -116,12 +132,70 @@ Personalisierte Menüvorschläge generieren
       "prepTime": 30,
       "difficulty": "einfach",
       "servings": 4,
-      "ingredients": [...],
+      "ingredients": [
+        {
+          "name": "Spaghetti",
+          "amount": "500g",
+          "onPromo": true,
+          "retailer": "Migros"
+        }
+      ],
       "allergens": ["Gluten"],
-      "tags": ["familienfreundlich", "klassisch"]
+      "tags": ["familienfreundlich", "klassisch"],
+      "nutrition": {
+        "calories": 520,
+        "protein": "high",
+        "carbs": "high",
+        "balanced": true
+      }
     }
   ],
   "total": 10
+}
+```
+
+### GET `/api/recipe/search?mealName=Spaghetti%20Bolognese`
+Rezept-Suchlinks für Schweizer Rezeptseiten
+
+**Response:**
+```json
+{
+  "mealName": "Spaghetti Bolognese",
+  "searchUrls": [
+    {
+      "name": "Betty Bossi",
+      "url": "https://www.bettybossi.ch/de/Suche?q=Spaghetti+Bolognese"
+    },
+    {
+      "name": "Swissmilk",
+      "url": "https://www.swissmilk.ch/de/rezepte-kochideen/?q=Spaghetti+Bolognese"
+    },
+    {
+      "name": "Fooby (Coop)",
+      "url": "https://fooby.ch/de/rezepte.html?q=Spaghetti+Bolognese"
+    }
+  ]
+}
+```
+
+### POST `/api/shopping-list/export`
+Einkaufsliste exportieren (für Family Wall)
+
+**Request Body:**
+```json
+{
+  "ingredients": [...],
+  "mealName": "Spaghetti Bolognese"
+}
+```
+
+**Response:**
+```json
+{
+  "mealName": "Spaghetti Bolognese",
+  "textFormat": "Spaghetti - 500g\nRindshackfleisch - 400g\n...",
+  "csvFormat": "Zutat,Menge,Aktion,Händler\n...",
+  "count": 7
 }
 ```
 
@@ -133,15 +207,22 @@ Alle Allergene in der Datenbank
 
 ## 🍴 Verfügbare Gerichte
 
-Die App enthält 12 vorbereitete Gerichte:
+Die App enthält 14 ausgewogene Gerichte mit Schweizer Aktionen:
 
-- **Italienisch**: Spaghetti Bolognese, Pizza Margherita, Pasta mit Pesto
-- **Deutsch**: Schnitzel mit Kartoffelsalat, Rindergeschnetzeltes mit Spätzle
-- **Asiatisch**: Hähnchencurry mit Reis, Gemüsepfanne mit Tofu
-- **Mexikanisch**: Chili con Carne, Tacos mit Hähnchen
-- **Vegetarisch/Vegan**: Gemüselasagne, Gemüsepfanne mit Tofu
+- **Schweizer Klassiker**: Älplermagronen, Rindsgeschnetzeltes Züri-Art, Schweinsschnitzel mit Kartoffelsalat
+- **Italienisch**: Spaghetti Bolognese, Pasta mit Basilikumpesto
+- **Asiatisch**: Pouletcurry mit Basmatireis, Linsen-Dal mit Naan
+- **Mexikanisch**: Chili con Carne, Poulet-Tacos
+- **Vegetarisch**: Gemüselasagne, Gemüse-Quiche
+- **Vegan**: Gemüsepfanne mit Tofu, Linsen-Dal mit Naan
 - **Fisch**: Lachsfilet mit Ofengemüse
-- **Suppen**: Gemüsesuppe mit Brot
+- **Suppen**: Minestrone mit Vollkornbrot
+
+Jedes Gericht enthält:
+- Detaillierte Zutatenliste mit Mengenangaben
+- Aktions-Markierung von Schweizer Händlern
+- Nährwertinformationen und Balance-Bewertung
+- Allergen-Informationen
 
 ## 🛠️ Technologie-Stack
 
@@ -161,12 +242,34 @@ Die App enthält 12 vorbereitete Gerichte:
 
 ## 🎯 Verwendung
 
-1. **Familiengröße eingeben**: Anzahl der Personen (1-12)
-2. **Allergene ausschließen**: Klicken Sie auf Allergene, die vermieden werden sollen
-3. **Präferenzen wählen**: Wählen Sie bevorzugte Küchen oder Tags
-4. **Schwierigkeitsgrad**: Optional filtern nach einfach/mittel
-5. **Vorschläge generieren**: Klick auf den Button
-6. **Ergebnis**: Personalisierte Menüvorschläge mit allen Details
+### Vorschläge generieren
+1. **Familiengrösse eingeben**: Anzahl der Personen (1-12)
+2. **Optionen aktivieren**:
+   - ✓ Ausgewogene Mahlzeiten bevorzugen
+   - ✓ Aktionen von Schweizer Detailhändlern bevorzugen
+3. **Allergene ausschliessen**: Klicken Sie auf Allergene (Gluten, Milch, Nüsse, etc.)
+4. **Präferenzen wählen**: Bevorzugte Kategorien auswählen
+5. **Schwierigkeitsgrad**: Optional filtern nach einfach/mittel
+6. **Vorschläge generieren**: Klick auf "🎲 Vorschläge generieren"
+
+### Rezept finden
+1. **Gericht auswählen**: Aus den generierten Vorschlägen
+2. **"📖 Rezept suchen"** klicken
+3. **Rezeptlinks öffnen**: Betty Bossi, Swissmilk, Fooby oder Google
+
+### Einkaufsliste exportieren
+1. **"🛒 Einkaufsliste kopieren"** klicken
+2. **Family Wall öffnen**: Mobile App starten
+3. **Zur Einkaufsliste navigieren**
+4. **Zutaten einfügen**: Aus der Zwischenablage (Strg+V / Cmd+V)
+
+Die kopierten Zutaten sind formatiert als:
+```
+Spaghetti - 500g
+Rindshackfleisch - 400g
+Tomaten passiert - 400g
+...
+```
 
 ## 📝 Eigene Gerichte hinzufügen
 

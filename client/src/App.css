@@ -51,6 +51,18 @@
   font-size: 1.1em;
 }
 
+.checkbox-label {
+  display: flex !important;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: auto !important;
+  cursor: pointer;
+}
+
 .preference-group input,
 .preference-group select {
   width: 100%;
@@ -251,6 +263,172 @@
   margin-bottom: 5px;
 }
 
+.balanced-badge {
+  background: #4caf50;
+  color: white;
+  padding: 8px 15px;
+  border-radius: 8px;
+  font-size: 0.9em;
+  font-weight: 600;
+  margin-bottom: 10px;
+  display: inline-block;
+}
+
+.promo-badge {
+  background: #ff9800;
+  color: white;
+  padding: 8px 15px;
+  border-radius: 8px;
+  font-size: 0.9em;
+  font-weight: 600;
+  margin-bottom: 10px;
+  display: inline-block;
+  margin-left: 10px;
+}
+
+.promo-item {
+  background: #fff3e0;
+  padding: 5px;
+  margin: 2px 0;
+  border-radius: 5px;
+}
+
+.promo-tag {
+  background: #ff9800;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.8em;
+  margin-left: 8px;
+  font-weight: 600;
+}
+
+.meal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+  flex-wrap: wrap;
+}
+
+.action-button {
+  flex: 1;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 10px;
+  font-size: 1em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  min-width: 150px;
+}
+
+.recipe-button {
+  background: #667eea;
+  color: white;
+}
+
+.recipe-button:hover {
+  background: #5568d3;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+}
+
+.shopping-button {
+  background: #4caf50;
+  color: white;
+}
+
+.shopping-button:hover {
+  background: #45a049;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+}
+
+.recipe-links {
+  margin-top: 15px;
+  padding: 15px;
+  background: #f5f7ff;
+  border-radius: 10px;
+  border-left: 4px solid #667eea;
+}
+
+.recipe-links h4 {
+  margin: 0 0 10px 0;
+  color: #667eea;
+  font-size: 1em;
+}
+
+.recipe-link {
+  display: block;
+  padding: 10px 15px;
+  margin: 5px 0;
+  background: white;
+  color: #667eea;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: all 0.3s;
+  font-weight: 500;
+}
+
+.recipe-link:hover {
+  background: #667eea;
+  color: white;
+  transform: translateX(5px);
+}
+
+.feedback-message {
+  background: #4caf50;
+  color: white;
+  padding: 15px 25px;
+  border-radius: 15px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-weight: 600;
+  animation: slideDown 0.3s ease-out;
+  box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.info-box {
+  background: #e3f2fd;
+  border-left: 4px solid #2196f3;
+  padding: 20px 25px;
+  border-radius: 10px;
+  margin-top: 30px;
+}
+
+.info-box h3 {
+  color: #1976d2;
+  margin: 0 0 15px 0;
+  font-size: 1.3em;
+}
+
+.info-box p {
+  color: #333;
+  line-height: 1.6;
+  margin-bottom: 15px;
+}
+
+.info-box ol {
+  color: #333;
+  line-height: 1.8;
+  margin-left: 20px;
+}
+
+.info-box li {
+  margin: 8px 0;
+}
+
 @media (max-width: 768px) {
   .App-header h1 {
     font-size: 2.5em;
@@ -263,5 +441,19 @@
   .preferences-section,
   .suggestions-section {
     padding: 20px;
+  }
+
+  .meal-actions {
+    flex-direction: column;
+  }
+
+  .action-button {
+    width: 100%;
+  }
+
+  .promo-badge {
+    margin-left: 0;
+    margin-top: 5px;
+    display: block;
   }
 }

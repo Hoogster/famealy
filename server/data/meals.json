@@ -6,20 +6,38 @@
     "prepTime": 30,
     "difficulty": "einfach",
     "servings": 4,
-    "ingredients": ["Spaghetti", "Hackfleisch", "Tomaten", "Zwiebeln", "Knoblauch", "Olivenöl"],
+    "ingredients": [
+      {"name": "Spaghetti", "amount": "500g", "onPromo": true, "retailer": "Migros"},
+      {"name": "Rindshackfleisch", "amount": "400g", "onPromo": false},
+      {"name": "Tomaten passiert", "amount": "400g", "onPromo": true, "retailer": "Coop"},
+      {"name": "Zwiebeln", "amount": "2 Stück", "onPromo": false},
+      {"name": "Knoblauch", "amount": "2 Zehen", "onPromo": false},
+      {"name": "Olivenöl", "amount": "2 EL", "onPromo": false},
+      {"name": "Basilikum", "amount": "1 Bund", "onPromo": false}
+    ],
     "allergens": ["Gluten"],
-    "tags": ["familienfreundlich", "klassisch"]
+    "tags": ["familienfreundlich", "klassisch"],
+    "nutrition": {"calories": 520, "protein": "high", "carbs": "high", "balanced": true}
   },
   {
     "id": 2,
-    "name": "Hähnchencurry mit Reis",
+    "name": "Pouletcurry mit Basmatireis",
     "category": "Asiatisch",
     "prepTime": 35,
     "difficulty": "mittel",
     "servings": 4,
-    "ingredients": ["Hähnchenbrustfilet", "Currypaste", "Kokosmilch", "Reis", "Gemüse"],
+    "ingredients": [
+      {"name": "Pouletbrustfilet", "amount": "600g", "onPromo": true, "retailer": "Denner"},
+      {"name": "Currypaste", "amount": "3 EL", "onPromo": false},
+      {"name": "Kokosmilch", "amount": "400ml", "onPromo": true, "retailer": "Aldi Suisse"},
+      {"name": "Basmatireis", "amount": "300g", "onPromo": false},
+      {"name": "Paprika", "amount": "2 Stück", "onPromo": true, "retailer": "Coop"},
+      {"name": "Zucchetti", "amount": "1 Stück", "onPromo": false},
+      {"name": "Zwiebeln", "amount": "1 Stück", "onPromo": false}
+    ],
     "allergens": [],
-    "tags": ["exotisch", "gesund"]
+    "tags": ["exotisch", "gesund"],
+    "nutrition": {"calories": 480, "protein": "high", "carbs": "medium", "balanced": true}
   },
   {
     "id": 3,
@@ -28,9 +46,18 @@
     "prepTime": 50,
     "difficulty": "mittel",
     "servings": 6,
-    "ingredients": ["Lasagneplatten", "Zucchini", "Aubergine", "Tomaten", "Mozzarella", "Béchamelsauce"],
+    "ingredients": [
+      {"name": "Lasagneplatten", "amount": "250g", "onPromo": false},
+      {"name": "Zucchetti", "amount": "2 Stück", "onPromo": true, "retailer": "Migros"},
+      {"name": "Aubergine", "amount": "1 Stück", "onPromo": false},
+      {"name": "Tomaten passiert", "amount": "800g", "onPromo": true, "retailer": "Lidl Schweiz"},
+      {"name": "Mozzarella", "amount": "250g", "onPromo": true, "retailer": "Coop"},
+      {"name": "Ricotta", "amount": "250g", "onPromo": false},
+      {"name": "Parmesan", "amount": "100g", "onPromo": false}
+    ],
     "allergens": ["Gluten", "Milchprodukte"],
-    "tags": ["vegetarisch", "familienfreundlich"]
+    "tags": ["vegetarisch", "familienfreundlich"],
+    "nutrition": {"calories": 420, "protein": "medium", "carbs": "medium", "balanced": true}
   },
   {
     "id": 4,
@@ -39,20 +66,37 @@
     "prepTime": 40,
     "difficulty": "einfach",
     "servings": 4,
-    "ingredients": ["Lachsfilet", "Kartoffeln", "Paprika", "Zucchini", "Olivenöl", "Kräuter"],
+    "ingredients": [
+      {"name": "Lachsfilet", "amount": "600g", "onPromo": true, "retailer": "Coop"},
+      {"name": "Kartoffeln", "amount": "800g", "onPromo": false},
+      {"name": "Paprika", "amount": "2 Stück", "onPromo": true, "retailer": "Migros"},
+      {"name": "Zucchetti", "amount": "2 Stück", "onPromo": false},
+      {"name": "Olivenöl", "amount": "3 EL", "onPromo": false},
+      {"name": "Kräuter gemischt", "amount": "1 Bund", "onPromo": false},
+      {"name": "Zitrone", "amount": "1 Stück", "onPromo": false}
+    ],
     "allergens": ["Fisch"],
-    "tags": ["gesund", "leicht"]
+    "tags": ["gesund", "leicht", "omega-3"],
+    "nutrition": {"calories": 450, "protein": "high", "carbs": "medium", "balanced": true}
   },
   {
     "id": 5,
-    "name": "Pizza Margherita",
-    "category": "Italienisch",
-    "prepTime": 25,
+    "name": "Schweizer Älplermagronen",
+    "category": "Schweizer Klassiker",
+    "prepTime": 35,
     "difficulty": "einfach",
     "servings": 4,
-    "ingredients": ["Pizzateig", "Tomatensauce", "Mozzarella", "Basilikum", "Olivenöl"],
+    "ingredients": [
+      {"name": "Hörnli", "amount": "400g", "onPromo": true, "retailer": "Migros"},
+      {"name": "Kartoffeln", "amount": "400g", "onPromo": false},
+      {"name": "Käse gerieben", "amount": "200g", "onPromo": true, "retailer": "Coop"},
+      {"name": "Rahm", "amount": "200ml", "onPromo": false},
+      {"name": "Zwiebeln", "amount": "2 Stück", "onPromo": false},
+      {"name": "Apfelmus", "amount": "400g", "onPromo": true, "retailer": "Denner"}
+    ],
     "allergens": ["Gluten", "Milchprodukte"],
-    "tags": ["kinder-liebling", "klassisch"]
+    "tags": ["schweizer-klassiker", "familienfreundlich"],
+    "nutrition": {"calories": 580, "protein": "medium", "carbs": "high", "balanced": false}
   },
   {
     "id": 6,
@@ -61,9 +105,18 @@
     "prepTime": 45,
     "difficulty": "einfach",
     "servings": 6,
-    "ingredients": ["Hackfleisch", "Kidneybohnen", "Tomaten", "Paprika", "Zwiebeln", "Chili"],
+    "ingredients": [
+      {"name": "Rindshackfleisch", "amount": "500g", "onPromo": true, "retailer": "Aldi Suisse"},
+      {"name": "Kidneybohnen", "amount": "400g", "onPromo": false},
+      {"name": "Tomaten passiert", "amount": "800g", "onPromo": true, "retailer": "Lidl Schweiz"},
+      {"name": "Paprika", "amount": "2 Stück", "onPromo": false},
+      {"name": "Zwiebeln", "amount": "2 Stück", "onPromo": false},
+      {"name": "Chilipulver", "amount": "2 TL", "onPromo": false},
+      {"name": "Mais", "amount": "200g", "onPromo": true, "retailer": "Migros"}
+    ],
     "allergens": [],
-    "tags": ["herzhaft", "familienfreundlich"]
+    "tags": ["herzhaft", "familienfreundlich"],
+    "nutrition": {"calories": 380, "protein": "high", "carbs": "medium", "balanced": true}
   },
   {
     "id": 7,
@@ -72,63 +125,157 @@
     "prepTime": 25,
     "difficulty": "einfach",
     "servings": 4,
-    "ingredients": ["Tofu", "Brokkoli", "Paprika", "Karotten", "Sojasauce", "Ingwer"],
+    "ingredients": [
+      {"name": "Tofu natur", "amount": "400g", "onPromo": true, "retailer": "Coop"},
+      {"name": "Brokkoli", "amount": "300g", "onPromo": false},
+      {"name": "Paprika", "amount": "2 Stück", "onPromo": true, "retailer": "Migros"},
+      {"name": "Karotten", "amount": "3 Stück", "onPromo": false},
+      {"name": "Sojasauce", "amount": "3 EL", "onPromo": false},
+      {"name": "Ingwer", "amount": "1 Stück", "onPromo": false},
+      {"name": "Reisnudeln", "amount": "300g", "onPromo": true, "retailer": "Aldi Suisse"}
+    ],
     "allergens": ["Soja"],
-    "tags": ["vegan", "gesund", "schnell"]
+    "tags": ["vegan", "gesund", "schnell"],
+    "nutrition": {"calories": 320, "protein": "medium", "carbs": "medium", "balanced": true}
   },
   {
     "id": 8,
-    "name": "Schnitzel mit Kartoffelsalat",
-    "category": "Deutsch",
+    "name": "Schweinsschnitzel mit Kartoffelsalat",
+    "category": "Schweizer Klassiker",
     "prepTime": 40,
     "difficulty": "mittel",
     "servings": 4,
-    "ingredients": ["Schweineschnitzel", "Panade", "Kartoffeln", "Mayonnaise", "Gurken"],
+    "ingredients": [
+      {"name": "Schweinsschnitzel", "amount": "4 Stück", "onPromo": true, "retailer": "Denner"},
+      {"name": "Paniermehl", "amount": "100g", "onPromo": false},
+      {"name": "Eier", "amount": "2 Stück", "onPromo": false},
+      {"name": "Kartoffeln", "amount": "1kg", "onPromo": true, "retailer": "Migros"},
+      {"name": "Mayonnaise", "amount": "150g", "onPromo": false},
+      {"name": "Essig", "amount": "3 EL", "onPromo": false},
+      {"name": "Gurken", "amount": "2 Stück", "onPromo": false}
+    ],
     "allergens": ["Gluten", "Ei"],
-    "tags": ["traditionell", "familienfreundlich"]
+    "tags": ["traditionell", "familienfreundlich"],
+    "nutrition": {"calories": 620, "protein": "high", "carbs": "medium", "balanced": false}
   },
   {
     "id": 9,
-    "name": "Pasta mit Pesto und Kirschtomaten",
+    "name": "Pasta mit Basilikumpesto",
     "category": "Italienisch",
     "prepTime": 20,
     "difficulty": "einfach",
     "servings": 4,
-    "ingredients": ["Pasta", "Pesto", "Kirschtomaten", "Parmesan", "Pinienkerne"],
+    "ingredients": [
+      {"name": "Penne", "amount": "400g", "onPromo": true, "retailer": "Lidl Schweiz"},
+      {"name": "Basilikum", "amount": "1 Bund", "onPromo": false},
+      {"name": "Pinienkerne", "amount": "50g", "onPromo": false},
+      {"name": "Parmesan", "amount": "80g", "onPromo": true, "retailer": "Coop"},
+      {"name": "Kirschtomaten", "amount": "250g", "onPromo": true, "retailer": "Migros"},
+      {"name": "Knoblauch", "amount": "2 Zehen", "onPromo": false},
+      {"name": "Olivenöl", "amount": "100ml", "onPromo": false}
+    ],
     "allergens": ["Gluten", "Milchprodukte", "Nüsse"],
-    "tags": ["schnell", "vegetarisch"]
+    "tags": ["schnell", "vegetarisch"],
+    "nutrition": {"calories": 480, "protein": "medium", "carbs": "high", "balanced": true}
   },
   {
     "id": 10,
-    "name": "Rindergeschnetzeltes mit Spätzle",
-    "category": "Deutsch",
+    "name": "Rindsgeschnetzeltes Züri-Art",
+    "category": "Schweizer Klassiker",
     "prepTime": 35,
     "difficulty": "mittel",
     "servings": 4,
-    "ingredients": ["Rindfleisch", "Champignons", "Sahne", "Spätzle", "Zwiebeln"],
-    "allergens": ["Gluten", "Milchprodukte"],
-    "tags": ["herzhaft", "klassisch"]
+    "ingredients": [
+      {"name": "Rindfleisch", "amount": "600g", "onPromo": true, "retailer": "Coop"},
+      {"name": "Champignons", "amount": "300g", "onPromo": false},
+      {"name": "Rahm", "amount": "200ml", "onPromo": false},
+      {"name": "Weisswein", "amount": "100ml", "onPromo": false},
+      {"name": "Rösti", "amount": "800g", "onPromo": true, "retailer": "Migros"},
+      {"name": "Zwiebeln", "amount": "2 Stück", "onPromo": false},
+      {"name": "Butter", "amount": "30g", "onPromo": false}
+    ],
+    "allergens": ["Milchprodukte"],
+    "tags": ["schweizer-klassiker", "herzhaft"],
+    "nutrition": {"calories": 580, "protein": "high", "carbs": "medium", "balanced": false}
   },
   {
     "id": 11,
-    "name": "Gemüsesuppe mit Brot",
+    "name": "Minestrone mit Vollkornbrot",
     "category": "Suppe",
     "prepTime": 30,
     "difficulty": "einfach",
     "servings": 4,
-    "ingredients": ["Karotten", "Sellerie", "Kartoffeln", "Gemüsebrühe", "Brot"],
+    "ingredients": [
+      {"name": "Karotten", "amount": "3 Stück", "onPromo": false},
+      {"name": "Sellerie", "amount": "2 Stangen", "onPromo": false},
+      {"name": "Kartoffeln", "amount": "2 Stück", "onPromo": false},
+      {"name": "Gemüsebrühe", "amount": "1.5L", "onPromo": false},
+      {"name": "Tomaten passiert", "amount": "400g", "onPromo": true, "retailer": "Aldi Suisse"},
+      {"name": "Weisse Bohnen", "amount": "200g", "onPromo": false},
+      {"name": "Vollkornbrot", "amount": "1 Stück", "onPromo": true, "retailer": "Coop"}
+    ],
     "allergens": ["Gluten"],
-    "tags": ["gesund", "leicht", "vegetarisch"]
+    "tags": ["gesund", "leicht", "vegetarisch"],
+    "nutrition": {"calories": 280, "protein": "medium", "carbs": "medium", "balanced": true}
   },
   {
     "id": 12,
-    "name": "Tacos mit Hähnchen",
+    "name": "Poulet-Tacos",
     "category": "Mexikanisch",
     "prepTime": 30,
     "difficulty": "einfach",
     "servings": 4,
-    "ingredients": ["Hähnchenbrust", "Tortillas", "Salat", "Tomaten", "Käse", "Sauerrahm"],
+    "ingredients": [
+      {"name": "Pouletbrust", "amount": "500g", "onPromo": true, "retailer": "Denner"},
+      {"name": "Tortillas", "amount": "8 Stück", "onPromo": true, "retailer": "Migros"},
+      {"name": "Salat", "amount": "1 Kopf", "onPromo": false},
+      {"name": "Tomaten", "amount": "3 Stück", "onPromo": false},
+      {"name": "Cheddar", "amount": "150g", "onPromo": false},
+      {"name": "Sauerrahm", "amount": "200g", "onPromo": true, "retailer": "Coop"},
+      {"name": "Taco-Gewürz", "amount": "1 Packung", "onPromo": false}
+    ],
     "allergens": ["Gluten", "Milchprodukte"],
-    "tags": ["familienfreundlich", "interaktiv"]
+    "tags": ["familienfreundlich", "interaktiv"],
+    "nutrition": {"calories": 450, "protein": "high", "carbs": "medium", "balanced": true}
+  },
+  {
+    "id": 13,
+    "name": "Gemüse-Quiche",
+    "category": "Vegetarisch",
+    "prepTime": 45,
+    "difficulty": "mittel",
+    "servings": 6,
+    "ingredients": [
+      {"name": "Blätterteig", "amount": "1 Packung", "onPromo": true, "retailer": "Lidl Schweiz"},
+      {"name": "Eier", "amount": "4 Stück", "onPromo": false},
+      {"name": "Rahm", "amount": "200ml", "onPromo": false},
+      {"name": "Lauch", "amount": "2 Stangen", "onPromo": true, "retailer": "Coop"},
+      {"name": "Spinat", "amount": "200g", "onPromo": false},
+      {"name": "Gruyère", "amount": "150g", "onPromo": false},
+      {"name": "Cherrytomaten", "amount": "150g", "onPromo": false}
+    ],
+    "allergens": ["Gluten", "Ei", "Milchprodukte"],
+    "tags": ["vegetarisch", "brunch"],
+    "nutrition": {"calories": 420, "protein": "medium", "carbs": "medium", "balanced": true}
+  },
+  {
+    "id": 14,
+    "name": "Linsen-Dal mit Naan",
+    "category": "Vegan",
+    "prepTime": 40,
+    "difficulty": "mittel",
+    "servings": 4,
+    "ingredients": [
+      {"name": "Rote Linsen", "amount": "300g", "onPromo": true, "retailer": "Aldi Suisse"},
+      {"name": "Kokosmilch", "amount": "400ml", "onPromo": false},
+      {"name": "Tomaten passiert", "amount": "400g", "onPromo": true, "retailer": "Migros"},
+      {"name": "Zwiebeln", "amount": "2 Stück", "onPromo": false},
+      {"name": "Ingwer", "amount": "1 Stück", "onPromo": false},
+      {"name": "Currypulver", "amount": "2 EL", "onPromo": false},
+      {"name": "Naan-Brot", "amount": "4 Stück", "onPromo": true, "retailer": "Coop"}
+    ],
+    "allergens": ["Gluten"],
+    "tags": ["vegan", "gesund", "proteinreich"],
+    "nutrition": {"calories": 380, "protein": "high", "carbs": "medium", "balanced": true}
   }
 ]
