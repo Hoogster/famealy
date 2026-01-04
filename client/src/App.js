@@ -9,7 +9,9 @@ function App() {
     difficulty: 'alle',
     count: 3,
     preferBalanced: true,
-    preferPromotions: true
+    preferPromotions: true,
+    selectedRetailer: null,
+    postalCode: ''
   });
 
   const [suggestions, setSuggestions] = useState([]);
@@ -166,6 +168,46 @@ function App() {
               />
             </label>
           </div>
+
+          <div className="preference-group retailer-selection">
+            <label>🛒 Detailhändler auswählen (optional):</label>
+            <select
+              value={preferences.selectedRetailer || ''}
+              onChange={(e) =>
+                setPreferences({ ...preferences, selectedRetailer: e.target.value || null })
+              }
+              className="retailer-select"
+            >
+              <option value="">Alle Händler</option>
+              <option value="Migros">Migros</option>
+              <option value="Coop">Coop</option>
+              <option value="Denner">Denner</option>
+              <option value="Lidl">Lidl</option>
+            </select>
+            <small className="hint">
+              Nur Gerichte mit Aktionen vom gewählten Händler anzeigen
+            </small>
+          </div>
+
+          {(preferences.selectedRetailer === 'Migros' || preferences.selectedRetailer === 'Coop') && (
+            <div className="preference-group postal-code-group">
+              <label>📍 Postleitzahl (für regionale Aktionen):</label>
+              <input
+                type="text"
+                placeholder="z.B. 8001"
+                maxLength="4"
+                value={preferences.postalCode}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/\D/g, '');
+                  setPreferences({ ...preferences, postalCode: value });
+                }}
+                className="postal-code-input"
+              />
+              <small className="hint">
+                {preferences.selectedRetailer} hat regional unterschiedliche Aktionen
+              </small>
+            </div>
+          )}
 
           <div className="preference-group">
             <label className="checkbox-label">

@@ -1,5 +1,40 @@
 const mealsData = require('../server/data/meals.json');
 
+// Helper function to determine region from postal code
+function getRegionFromPostalCode(postalCode) {
+  if (!postalCode) return null;
+  const firstDigit = parseInt(postalCode.toString()[0]);
+  const regions = {
+    1: 'Westschweiz', // Geneva, Lausanne
+    2: 'Westschweiz', // Neuchâtel
+    3: 'Bern',
+    4: 'Basel',
+    5: 'Aargau/Solothurn',
+    6: 'Zentralschweiz', // Lucerne
+    7: 'Graubünden/Ticino',
+    8: 'Zürich',
+    9: 'Ostschweiz' // St. Gallen, Thurgau
+  };
+  return regions[firstDigit] || null;
+}
+
+// Check if ingredient promotion is valid for region
+function isPromoValidForRegion(ingredient, retailer, postalCode) {
+  if (!ingredient.onPromo) return false;
+  if (ingredient.retailer !== retailer) return false;
+
+  // For Migros and Coop, check regional availability
+  if ((retailer === 'Migros' || retailer === 'Coop') && postalCode) {
+    const region = getRegionFromPostalCode(postalCode);
+    // If ingredient has regional restrictions, check them
+    if (ingredient.regions && ingredient.regions.length > 0) {
+      return ingredient.regions.includes(region);
+    }
+  }
+
+  return true;
+}
+
 module.exports = (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -37,7 +72,9 @@ module.exports = (req, res) => {
       difficulty = 'alle',
       count = 3,
       preferBalanced = true,
-      preferPromotions = true
+      preferPromotions = true,
+      selectedRetailer = null,
+      postalCode = null
     } = req.body;
 
     let filteredMeals = mealsData.filter(meal => {
@@ -78,28 +115,67 @@ module.exports = (req, res) => {
       });
     }
 
+    // Score meals based on preferences and retailer
     const scoredMeals = filteredMeals.map(meal => {
       let score = 0;
+
+      // Prefer balanced meals (moderate weight)
       if (preferBalanced && meal.nutrition?.balanced) {
-        score += 10;
+        score += 5;
       }
+
+      // STRONG preference for promotions
       if (preferPromotions) {
-        const promoCount = meal.ingredients.filter(ing => ing.onPromo).length;
-        score += promoCount * 2;
+        let validPromoCount = 0;
+
+        meal.ingredients.forEach(ing => {
+          // If retailer is selected, only count promotions from that retailer
+          if (selectedRetailer) {
+            if (isPromoValidForRegion(ing, selectedRetailer, postalCode)) {
+              validPromoCount++;
+            }
+          } else {
+            // No retailer selected, count all promotions
+            if (ing.onPromo) {
+              validPromoCount++;
+            }
+          }
+        });
+
+        // Heavy weight for promotions - 10 points per promo item
+        score += validPromoCount * 10;
+
+        // Extra bonus if meal has 3+ promo items
+        if (validPromoCount >= 3) {
+          score += 20;
+        }
+
+        // If retailer is selected, strongly penalize meals with no matching promos
+        if (selectedRetailer && validPromoCount === 0) {
+          score -= 50;
+        }
       }
-      return { ...meal, score };
+
+      return { ...meal, score, validPromoCount: score > 0 ? Math.floor(score / 10) : 0 };
     });
 
-    const sortedMeals = scoredMeals.sort((a, b) => {
-      const scoreDiff = b.score - a.score;
-      return scoreDiff + (Math.random() - 0.5) * 5;
-    });
+    // Sort by score with minimal randomness (prioritize high-scoring meals)
+    const sortedMeals = scoredMeals
+      .filter(meal => !selectedRetailer || meal.score >= 0) // Filter out penalized meals
+      .sort((a, b) => {
+        const scoreDiff = b.score - a.score;
+        // Minimal randomness to keep high scorers on top
+        return scoreDiff + (Math.random() - 0.5) * 2;
+      });
 
     const suggestions = sortedMeals.slice(0, count);
 
     return res.json({
       suggestions,
-      total: filteredMeals.length
+      total: filteredMeals.length,
+      selectedRetailer,
+      postalCode,
+      region: postalCode ? getRegionFromPostalCode(postalCode) : null
     });
   }
 

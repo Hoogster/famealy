@@ -457,3 +457,40 @@
     display: block;
   }
 }
+
+/* Retailer Selection Styles */
+.retailer-selection {
+  background: #f8f9ff;
+  padding: 20px;
+  border-radius: 12px;
+  border: 2px solid #667eea;
+}
+
+.retailer-select {
+  font-size: 16px;
+  font-weight: 600;
+  color: #667eea;
+}
+
+.postal-code-group {
+  background: #fff8e1;
+  padding: 20px;
+  border-radius: 12px;
+  border: 2px solid #ff9800;
+  animation: slideDown 0.3s ease-out;
+}
+
+.postal-code-input {
+  width: 150px !important;
+  font-size: 18px;
+  text-align: center;
+  font-weight: 600;
+}
+
+.hint {
+  display: block;
+  margin-top: 8px;
+  font-size: 0.9em;
+  color: #666;
+  font-style: italic;
+}
