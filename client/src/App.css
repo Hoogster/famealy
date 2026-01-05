@@ -553,6 +553,31 @@
   box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.2);
 }
 
+.city-name {
+  margin-top: 15px;
+  font-size: 1.4em;
+  font-weight: 700;
+  color: #ff9800;
+  text-align: center;
+  animation: fadeIn 0.3s ease-out;
+  padding: 10px;
+  background: white;
+  border-radius: 8px;
+  display: inline-block;
+  width: 100%;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Parameters Section */
 .parameters-section {
   margin-top: 25px;
@@ -643,6 +668,24 @@
   color: #667eea;
   min-width: 80px;
   text-align: right;
+}
+
+.time-scale {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  padding: 10px;
+  background: #f5f7ff;
+  border-radius: 8px;
+  gap: 10px;
+}
+
+.time-scale span {
+  font-size: 0.85em;
+  color: #666;
+  font-weight: 500;
+  text-align: center;
+  flex: 1;
 }
 
 /* Favorite Button */

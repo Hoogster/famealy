@@ -3,10 +3,54 @@ import './App.css';
 
 // Retailer configuration - easy to extend
 const RETAILERS = [
-  { id: 'migros', name: 'Migros', regional: true },
-  { id: 'coop', name: 'Coop', regional: true },
-  { id: 'aldi', name: 'Aldi', regional: false }
+  { id: 'Migros', name: 'Migros', regional: true },
+  { id: 'Coop', name: 'Coop', regional: true },
+  { id: 'Aldi Suisse', name: 'Aldi', regional: false }
 ];
+
+// Postal code to city mapping for Swiss regions
+const POSTAL_CODE_CITIES = {
+  '1000': 'Lausanne', '1200': 'Genève', '1700': 'Fribourg',
+  '2000': 'Neuchâtel', '2500': 'Biel/Bienne',
+  '3000': 'Bern', '3072': 'Ostermundigen', '3600': 'Thun',
+  '4000': 'Basel', '4500': 'Solothurn',
+  '5000': 'Aarau', '5400': 'Baden',
+  '6000': 'Luzern', '6300': 'Zug',
+  '7000': 'Chur', '6900': 'Lugano',
+  '8000': 'Zürich', '8400': 'Winterthur', '8600': 'Dübendorf',
+  '9000': 'St. Gallen', '9500': 'Wil'
+};
+
+// Get city name from postal code (matches first 2-4 digits)
+const getCityFromPostalCode = (plz) => {
+  if (!plz || plz.length < 4) return '';
+
+  // Try exact match first
+  if (POSTAL_CODE_CITIES[plz]) {
+    return POSTAL_CODE_CITIES[plz];
+  }
+
+  // Try matching first 3 digits
+  const prefix3 = plz.substring(0, 3) + '0';
+  if (POSTAL_CODE_CITIES[prefix3]) {
+    return POSTAL_CODE_CITIES[prefix3];
+  }
+
+  // Try matching first 2 digits
+  const prefix2 = plz.substring(0, 2) + '00';
+  if (POSTAL_CODE_CITIES[prefix2]) {
+    return POSTAL_CODE_CITIES[prefix2];
+  }
+
+  // Return region based on first digit
+  const firstDigit = parseInt(plz[0]);
+  const regions = {
+    1: 'Westschweiz', 2: 'Westschweiz', 3: 'Bern',
+    4: 'Basel', 5: 'Aargau', 6: 'Zentralschweiz',
+    7: 'Graubünden', 8: 'Zürich', 9: 'Ostschweiz'
+  };
+  return regions[firstDigit] || '';
+};
 
 function App() {
   // Load postal code from localStorage
@@ -15,6 +59,10 @@ function App() {
   );
 
   const [selectedRetailer, setSelectedRetailer] = useState(null);
+  const [cityName, setCityName] = useState(() => {
+    const savedPostalCode = localStorage.getItem('famealy_postalCode');
+    return savedPostalCode ? getCityFromPostalCode(savedPostalCode) : '';
+  });
   const [maxPrepTime, setMaxPrepTime] = useState(60); // minutes
   const [familySize, setFamilySize] = useState(4);
   const [count, setCount] = useState(3);
@@ -191,9 +239,12 @@ function App() {
                 onChange={(e) => {
                   const value = e.target.value.replace(/\D/g, '');
                   setPostalCode(value);
+                  const city = getCityFromPostalCode(value);
+                  setCityName(city);
                 }}
                 className="postal-code-input-large"
               />
+              {cityName && <div className="city-name">📍 {cityName}</div>}
               <small className="hint">Wird für nächste Session gespeichert</small>
             </div>
           )}
@@ -214,6 +265,11 @@ function App() {
                   onChange={(e) => setMaxPrepTime(parseInt(e.target.value))}
                 />
                 <span className="time-value">{maxPrepTime} Min.</span>
+              </div>
+              <div className="time-scale">
+                <span>⚡ Schnell (15-30)</span>
+                <span>🕐 Mittel (30-60)</span>
+                <span>🕐🕐 Lang (60-120)</span>
               </div>
             </div>
 
