@@ -59,119 +59,52 @@ app.get('/api/meals', (req, res) => {
 app.post('/api/suggestions', (req, res) => {
   const {
     familySize = 4,
-    allergens = [],
-    preferences = [],
-    difficulty = 'alle',
+    maxPrepTime = 60,
     count = 3,
-    preferBalanced = true,
-    preferPromotions = true,
     selectedRetailer = null,
     postalCode = null
   } = req.body;
 
-  // Filter meals based on criteria
-  let filteredMeals = mealsData.filter(meal => {
-    // Filter by allergens
-    if (allergens.length > 0) {
-      const hasAllergen = meal.allergens.some(allergen =>
-        allergens.includes(allergen)
+  // STRICT filtering: ONLY meals with promotions from selected retailer
+  let validMeals = mealsData.filter(meal => {
+    // Must have at least one promo from selected retailer
+    if (selectedRetailer) {
+      const hasRetailerPromo = meal.ingredients.some(ing =>
+        isPromoValidForRegion(ing, selectedRetailer, postalCode)
       );
-      if (hasAllergen) return false;
+      if (!hasRetailerPromo) return false;
     }
 
-    // Filter by difficulty
-    if (difficulty !== 'alle' && meal.difficulty !== difficulty) {
+    // Filter by max prep time
+    if (meal.prepTime > maxPrepTime) {
       return false;
     }
 
-    // Filter by servings (within range)
+    // Filter by family size (within range)
     if (Math.abs(meal.servings - familySize) > 2) {
       return false;
-    }
-
-    // Prefer meals matching preferences
-    if (preferences.length > 0) {
-      const matchesPreference =
-        preferences.includes(meal.category) ||
-        meal.tags.some(tag => preferences.includes(tag));
-
-      return matchesPreference;
     }
 
     return true;
   });
 
-  // If too few results, relax some constraints
-  if (filteredMeals.length < count) {
-    filteredMeals = mealsData.filter(meal => {
-      if (allergens.length > 0) {
-        const hasAllergen = meal.allergens.some(allergen =>
-          allergens.includes(allergen)
-        );
-        if (hasAllergen) return false;
-      }
-      return true;
-    });
-  }
+  // Add promo count to each meal
+  const mealsWithPromoCount = validMeals.map(meal => {
+    const promoCount = meal.ingredients.filter(ing =>
+      isPromoValidForRegion(ing, selectedRetailer, postalCode)
+    ).length;
 
-  // Score meals based on preferences and retailer
-  const scoredMeals = filteredMeals.map(meal => {
-    let score = 0;
-
-    // Prefer balanced meals (moderate weight)
-    if (preferBalanced && meal.nutrition?.balanced) {
-      score += 5;
-    }
-
-    // STRONG preference for promotions
-    if (preferPromotions) {
-      let validPromoCount = 0;
-
-      meal.ingredients.forEach(ing => {
-        // If retailer is selected, only count promotions from that retailer
-        if (selectedRetailer) {
-          if (isPromoValidForRegion(ing, selectedRetailer, postalCode)) {
-            validPromoCount++;
-          }
-        } else {
-          // No retailer selected, count all promotions
-          if (ing.onPromo) {
-            validPromoCount++;
-          }
-        }
-      });
-
-      // Heavy weight for promotions - 10 points per promo item
-      score += validPromoCount * 10;
-
-      // Extra bonus if meal has 3+ promo items
-      if (validPromoCount >= 3) {
-        score += 20;
-      }
-
-      // If retailer is selected, strongly penalize meals with no matching promos
-      if (selectedRetailer && validPromoCount === 0) {
-        score -= 50;
-      }
-    }
-
-    return { ...meal, score, validPromoCount: score > 0 ? Math.floor(score / 10) : 0 };
+    return { ...meal, promoCount };
   });
 
-  // Sort by score with minimal randomness (prioritize high-scoring meals)
-  const sortedMeals = scoredMeals
-    .filter(meal => !selectedRetailer || meal.score >= 0) // Filter out penalized meals
-    .sort((a, b) => {
-      const scoreDiff = b.score - a.score;
-      // Minimal randomness to keep high scorers on top
-      return scoreDiff + (Math.random() - 0.5) * 2;
-    });
+  // Sort by promo count (most promos first)
+  const sortedMeals = mealsWithPromoCount.sort((a, b) => b.promoCount - a.promoCount);
 
   const suggestions = sortedMeals.slice(0, count);
 
   res.json({
     suggestions,
-    total: filteredMeals.length,
+    total: validMeals.length,
     selectedRetailer,
     postalCode,
     region: postalCode ? getRegionFromPostalCode(postalCode) : null

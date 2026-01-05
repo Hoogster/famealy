@@ -1,56 +1,85 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 
+// Retailer configuration - easy to extend
+const RETAILERS = [
+  { id: 'migros', name: 'Migros', regional: true },
+  { id: 'coop', name: 'Coop', regional: true },
+  { id: 'aldi', name: 'Aldi', regional: false }
+];
+
 function App() {
-  const [preferences, setPreferences] = useState({
-    familySize: 4,
-    allergens: [],
-    preferences: [],
-    difficulty: 'alle',
-    count: 3,
-    preferBalanced: true,
-    preferPromotions: true,
-    selectedRetailer: null,
-    postalCode: ''
-  });
+  // Load postal code from localStorage
+  const [postalCode, setPostalCode] = useState(
+    () => localStorage.getItem('famealy_postalCode') || ''
+  );
+
+  const [selectedRetailer, setSelectedRetailer] = useState(null);
+  const [maxPrepTime, setMaxPrepTime] = useState(60); // minutes
+  const [familySize, setFamilySize] = useState(4);
+  const [count, setCount] = useState(3);
 
   const [suggestions, setSuggestions] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [allergens, setAllergens] = useState([]);
+  const [weeklyPlan, setWeeklyPlan] = useState([]);
+  const [favorites, setFavorites] = useState(
+    () => JSON.parse(localStorage.getItem('famealy_favorites') || '[]')
+  );
   const [loading, setLoading] = useState(false);
   const [selectedMeal, setSelectedMeal] = useState(null);
   const [recipeUrls, setRecipeUrls] = useState([]);
   const [copyFeedback, setCopyFeedback] = useState('');
+  const [showWeeklyPlanner, setShowWeeklyPlanner] = useState(false);
 
+  // Persist postal code to localStorage
   useEffect(() => {
-    // Load categories and allergens
-    fetch('/api/categories')
-      .then(res => res.json())
-      .then(data => setCategories(data))
-      .catch(err => console.error('Fehler beim Laden der Kategorien:', err));
+    if (postalCode) {
+      localStorage.setItem('famealy_postalCode', postalCode);
+    }
+  }, [postalCode]);
 
-    fetch('/api/allergens')
-      .then(res => res.json())
-      .then(data => setAllergens(data))
-      .catch(err => console.error('Fehler beim Laden der Allergene:', err));
-  }, []);
+  // Persist favorites to localStorage
+  useEffect(() => {
+    localStorage.setItem('famealy_favorites', JSON.stringify(favorites));
+  }, [favorites]);
 
   const handleGetSuggestions = async () => {
+    if (!selectedRetailer) {
+      alert('Bitte wählen Sie zuerst einen Detailhändler aus!');
+      return;
+    }
+
+    if (!postalCode) {
+      alert('Bitte geben Sie Ihre Postleitzahl ein!');
+      return;
+    }
+
     setLoading(true);
     setSelectedMeal(null);
     setRecipeUrls([]);
+
     try {
       const response = await fetch('/api/suggestions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(preferences)
+        body: JSON.stringify({
+          selectedRetailer,
+          postalCode,
+          maxPrepTime,
+          familySize,
+          count
+        })
       });
       const data = await response.json();
-      setSuggestions(data.suggestions);
+      setSuggestions(data.suggestions || []);
+
+      if (data.suggestions.length === 0) {
+        alert(`Keine Gerichte mit ${selectedRetailer}-Aktionen gefunden. Versuchen Sie einen höheren Zeitwert.`);
+      }
     } catch (error) {
       console.error('Fehler beim Abrufen der Vorschläge:', error);
+      alert('Fehler beim Laden der Vorschläge');
     } finally {
       setLoading(false);
     }
@@ -81,204 +110,142 @@ function App() {
       });
       const data = await response.json();
 
-      // Copy to clipboard
       navigator.clipboard.writeText(data.textFormat);
-      setCopyFeedback(`Einkaufsliste für "${meal.name}" wurde in die Zwischenablage kopiert!`);
+      setCopyFeedback(`Einkaufsliste für "${meal.name}" wurde kopiert!`);
       setTimeout(() => setCopyFeedback(''), 3000);
     } catch (error) {
-      console.error('Fehler beim Exportieren der Einkaufsliste:', error);
+      console.error('Fehler beim Exportieren:', error);
       setCopyFeedback('Fehler beim Kopieren');
       setTimeout(() => setCopyFeedback(''), 3000);
     }
   };
 
-  const toggleAllergen = (allergen) => {
-    setPreferences(prev => ({
-      ...prev,
-      allergens: prev.allergens.includes(allergen)
-        ? prev.allergens.filter(a => a !== allergen)
-        : [...prev.allergens, allergen]
-    }));
+  const toggleFavorite = (mealId) => {
+    setFavorites(prev =>
+      prev.includes(mealId)
+        ? prev.filter(id => id !== mealId)
+        : [...prev, mealId]
+    );
   };
 
-  const togglePreference = (pref) => {
-    setPreferences(prev => ({
-      ...prev,
-      preferences: prev.preferences.includes(pref)
-        ? prev.preferences.filter(p => p !== pref)
-        : [...prev.preferences, pref]
+  const generateWeeklyPlan = () => {
+    if (suggestions.length < 7) {
+      alert('Generieren Sie mindestens 7 Menüvorschläge für einen Wochenplan!');
+      return;
+    }
+
+    const days = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'];
+    const plan = days.map((day, index) => ({
+      day,
+      meal: suggestions[index] || null
     }));
+
+    setWeeklyPlan(plan);
+    setShowWeeklyPlanner(true);
   };
 
-  const countPromoItems = (meal) => {
-    return meal.ingredients.filter(ing => ing.onPromo).length;
+  const updateWeeklyPlanDay = (dayIndex, newMeal) => {
+    setWeeklyPlan(prev => {
+      const updated = [...prev];
+      updated[dayIndex] = { ...updated[dayIndex], meal: newMeal };
+      return updated;
+    });
   };
+
+  const selectedRetailerObj = RETAILERS.find(r => r.id === selectedRetailer);
+  const showPostalCode = selectedRetailerObj?.regional;
 
   return (
     <div className="App">
       <header className="App-header">
         <h1>🍽️ Famealy</h1>
-        <p>Ausgewogene Menüvorschläge mit Schweizer Aktionen</p>
+        <p>Menüvorschläge basierend auf aktuellen Aktionen</p>
       </header>
 
       <div className="container">
+        {/* Step 1: Retailer Selection */}
         <div className="preferences-section">
-          <h2>Ihre Präferenzen</h2>
+          <h2>1️⃣ Detailhändler wählen</h2>
 
-          <div className="preference-group">
-            <label>
-              Familiengrösse (Personen):
+          <div className="retailer-buttons">
+            {RETAILERS.map(retailer => (
+              <button
+                key={retailer.id}
+                className={`retailer-button ${selectedRetailer === retailer.id ? 'active' : ''}`}
+                onClick={() => setSelectedRetailer(retailer.id)}
+              >
+                {retailer.name}
+              </button>
+            ))}
+          </div>
+
+          {/* Step 2: Postal Code (if regional retailer) */}
+          {showPostalCode && (
+            <div className="postal-code-section">
+              <h2>2️⃣ Postleitzahl eingeben</h2>
+              <input
+                type="text"
+                placeholder="z.B. 3072"
+                maxLength="4"
+                value={postalCode}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/\D/g, '');
+                  setPostalCode(value);
+                }}
+                className="postal-code-input-large"
+              />
+              <small className="hint">Wird für nächste Session gespeichert</small>
+            </div>
+          )}
+
+          {/* Step 3: Parameters */}
+          <div className="parameters-section">
+            <h2>3️⃣ Parameter</h2>
+
+            <div className="param-group">
+              <label>⏱️ Maximale Zubereitungszeit (Minuten):</label>
+              <div className="time-selector">
+                <input
+                  type="range"
+                  min="15"
+                  max="120"
+                  step="5"
+                  value={maxPrepTime}
+                  onChange={(e) => setMaxPrepTime(parseInt(e.target.value))}
+                />
+                <span className="time-value">{maxPrepTime} Min.</span>
+              </div>
+            </div>
+
+            <div className="param-group">
+              <label>👨‍👩‍👧‍👦 Familiengrösse (Personen):</label>
               <input
                 type="number"
                 min="1"
                 max="12"
-                value={preferences.familySize}
-                onChange={(e) =>
-                  setPreferences({ ...preferences, familySize: parseInt(e.target.value) })
-                }
+                value={familySize}
+                onChange={(e) => setFamilySize(parseInt(e.target.value))}
               />
-            </label>
-          </div>
+            </div>
 
-          <div className="preference-group">
-            <label>Schwierigkeitsgrad:</label>
-            <select
-              value={preferences.difficulty}
-              onChange={(e) =>
-                setPreferences({ ...preferences, difficulty: e.target.value })
-              }
-            >
-              <option value="alle">Alle</option>
-              <option value="einfach">Einfach</option>
-              <option value="mittel">Mittel</option>
-            </select>
-          </div>
-
-          <div className="preference-group">
-            <label>
-              Anzahl der Vorschläge:
+            <div className="param-group">
+              <label>📊 Anzahl Vorschläge:</label>
               <input
                 type="number"
                 min="1"
-                max="10"
-                value={preferences.count}
-                onChange={(e) =>
-                  setPreferences({ ...preferences, count: parseInt(e.target.value) })
-                }
+                max="14"
+                value={count}
+                onChange={(e) => setCount(parseInt(e.target.value))}
               />
-            </label>
-          </div>
-
-          <div className="preference-group retailer-selection">
-            <label>🛒 Detailhändler auswählen (optional):</label>
-            <select
-              value={preferences.selectedRetailer || ''}
-              onChange={(e) =>
-                setPreferences({ ...preferences, selectedRetailer: e.target.value || null })
-              }
-              className="retailer-select"
-            >
-              <option value="">Alle Händler</option>
-              <option value="Migros">Migros</option>
-              <option value="Coop">Coop</option>
-              <option value="Denner">Denner</option>
-              <option value="Lidl">Lidl</option>
-            </select>
-            <small className="hint">
-              Nur Gerichte mit Aktionen vom gewählten Händler anzeigen
-            </small>
-          </div>
-
-          {(preferences.selectedRetailer === 'Migros' || preferences.selectedRetailer === 'Coop') && (
-            <div className="preference-group postal-code-group">
-              <label>📍 Postleitzahl (für regionale Aktionen):</label>
-              <input
-                type="text"
-                placeholder="z.B. 8001"
-                maxLength="4"
-                value={preferences.postalCode}
-                onChange={(e) => {
-                  const value = e.target.value.replace(/\D/g, '');
-                  setPreferences({ ...preferences, postalCode: value });
-                }}
-                className="postal-code-input"
-              />
-              <small className="hint">
-                {preferences.selectedRetailer} hat regional unterschiedliche Aktionen
-              </small>
             </div>
-          )}
-
-          <div className="preference-group">
-            <label className="checkbox-label">
-              <input
-                type="checkbox"
-                checked={preferences.preferBalanced}
-                onChange={(e) =>
-                  setPreferences({ ...preferences, preferBalanced: e.target.checked })
-                }
-              />
-              Ausgewogene Mahlzeiten bevorzugen
-            </label>
           </div>
-
-          <div className="preference-group">
-            <label className="checkbox-label">
-              <input
-                type="checkbox"
-                checked={preferences.preferPromotions}
-                onChange={(e) =>
-                  setPreferences({ ...preferences, preferPromotions: e.target.checked })
-                }
-              />
-              Aktionen von Schweizer Detailhändlern bevorzugen
-            </label>
-          </div>
-
-          {allergens.length > 0 && (
-            <div className="preference-group">
-              <label>Ausschliessen (Allergene):</label>
-              <div className="checkbox-group">
-                {allergens.map(allergen => (
-                  <button
-                    key={allergen}
-                    className={`tag-button ${
-                      preferences.allergens.includes(allergen) ? 'active' : ''
-                    }`}
-                    onClick={() => toggleAllergen(allergen)}
-                  >
-                    {allergen}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {categories.length > 0 && (
-            <div className="preference-group">
-              <label>Bevorzugte Kategorien:</label>
-              <div className="checkbox-group">
-                {categories.map(category => (
-                  <button
-                    key={category}
-                    className={`tag-button ${
-                      preferences.preferences.includes(category) ? 'active' : ''
-                    }`}
-                    onClick={() => togglePreference(category)}
-                  >
-                    {category}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
 
           <button
             className="suggest-button"
             onClick={handleGetSuggestions}
-            disabled={loading}
+            disabled={loading || !selectedRetailer || !postalCode}
           >
-            {loading ? 'Suche Gerichte...' : '🎲 Vorschläge generieren'}
+            {loading ? 'Suche Aktionen...' : '🔍 Menüvorschläge generieren'}
           </button>
         </div>
 
@@ -288,123 +255,150 @@ function App() {
           </div>
         )}
 
+        {/* Suggestions */}
         {suggestions.length > 0 && (
           <div className="suggestions-section">
-            <h2>Ihre Menüvorschläge</h2>
+            <div className="suggestions-header">
+              <h2>Ihre Menüvorschläge ({selectedRetailer} Aktionen)</h2>
+              {suggestions.length >= 7 && (
+                <button
+                  className="weekly-plan-button"
+                  onClick={generateWeeklyPlan}
+                >
+                  📅 Wochenplan generieren
+                </button>
+              )}
+            </div>
+
             <div className="meals-grid">
-              {suggestions.map(meal => {
-                const promoCount = countPromoItems(meal);
-                return (
-                  <div key={meal.id} className="meal-card">
-                    <div className="meal-header">
-                      <h3>{meal.name}</h3>
-                      <span className="category-badge">{meal.category}</span>
-                    </div>
+              {suggestions.map(meal => (
+                <div key={meal.id} className="meal-card">
+                  <div className="meal-header">
+                    <h3>{meal.name}</h3>
+                    <button
+                      className={`favorite-button ${favorites.includes(meal.id) ? 'active' : ''}`}
+                      onClick={() => toggleFavorite(meal.id)}
+                      title={favorites.includes(meal.id) ? 'Von Favoriten entfernen' : 'Zu Favoriten hinzufügen'}
+                    >
+                      {favorites.includes(meal.id) ? '⭐' : '☆'}
+                    </button>
+                  </div>
 
-                    {meal.nutrition?.balanced && (
-                      <div className="balanced-badge">
-                        ✓ Ausgewogen
-                      </div>
-                    )}
-
-                    {promoCount > 0 && (
-                      <div className="promo-badge">
-                        🏷️ {promoCount} Zutaten im Angebot
-                      </div>
-                    )}
-
-                    <div className="meal-info">
-                      <span className="info-item">⏱️ {meal.prepTime} Min.</span>
-                      <span className="info-item">👥 {meal.servings} Portionen</span>
-                      <span className="info-item">
-                        📊 {meal.difficulty.charAt(0).toUpperCase() + meal.difficulty.slice(1)}
+                  <div className="meal-badges">
+                    <span className="category-badge">{meal.category}</span>
+                    {meal.promoCount > 0 && (
+                      <span className="promo-badge">
+                        🏷️ {meal.promoCount} {selectedRetailer}-Aktionen
                       </span>
-                      {meal.nutrition && (
-                        <span className="info-item">
-                          🔥 {meal.nutrition.calories} kcal
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="meal-tags">
-                      {meal.tags.map(tag => (
-                        <span key={tag} className="tag">
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-
-                    <div className="ingredients">
-                      <strong>Zutaten:</strong>
-                      <ul>
-                        {meal.ingredients.map((ingredient, idx) => (
-                          <li key={idx} className={ingredient.onPromo ? 'promo-item' : ''}>
-                            {ingredient.name} - {ingredient.amount}
-                            {ingredient.onPromo && (
-                              <span className="promo-tag">
-                                🏷️ {ingredient.retailer}
-                              </span>
-                            )}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    {meal.allergens.length > 0 && (
-                      <div className="allergens">
-                        <strong>⚠️ Allergene:</strong> {meal.allergens.join(', ')}
-                      </div>
-                    )}
-
-                    <div className="meal-actions">
-                      <button
-                        className="action-button recipe-button"
-                        onClick={() => handleSearchRecipe(meal)}
-                      >
-                        📖 Rezept suchen
-                      </button>
-                      <button
-                        className="action-button shopping-button"
-                        onClick={() => handleExportShoppingList(meal)}
-                      >
-                        🛒 Einkaufsliste kopieren
-                      </button>
-                    </div>
-
-                    {selectedMeal?.id === meal.id && recipeUrls.length > 0 && (
-                      <div className="recipe-links">
-                        <h4>Rezepte online finden:</h4>
-                        {recipeUrls.map((url, idx) => (
-                          <a
-                            key={idx}
-                            href={url.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="recipe-link"
-                          >
-                            {url.name} →
-                          </a>
-                        ))}
-                      </div>
                     )}
                   </div>
-                );
-              })}
+
+                  <div className="meal-info">
+                    <span className="info-item">⏱️ {meal.prepTime} Min.</span>
+                    <span className="info-item">👥 {meal.servings} Portionen</span>
+                    {meal.nutrition && (
+                      <span className="info-item">🔥 {meal.nutrition.calories} kcal</span>
+                    )}
+                  </div>
+
+                  <div className="ingredients">
+                    <strong>Zutaten:</strong>
+                    <ul>
+                      {meal.ingredients.map((ing, idx) => (
+                        <li key={idx} className={ing.onPromo && ing.retailer === selectedRetailer ? 'promo-item' : ''}>
+                          {ing.name} - {ing.amount}
+                          {ing.onPromo && ing.retailer === selectedRetailer && (
+                            <span className="promo-tag">🏷️ Aktion</span>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="meal-actions">
+                    <button
+                      className="action-button recipe-button"
+                      onClick={() => handleSearchRecipe(meal)}
+                    >
+                      📖 Rezept suchen
+                    </button>
+                    <button
+                      className="action-button shopping-button"
+                      onClick={() => handleExportShoppingList(meal)}
+                    >
+                      🛒 Einkaufsliste
+                    </button>
+                  </div>
+
+                  {selectedMeal?.id === meal.id && recipeUrls.length > 0 && (
+                    <div className="recipe-links">
+                      <h4>Rezepte online finden:</h4>
+                      {recipeUrls.map((url, idx) => (
+                        <a
+                          key={idx}
+                          href={url.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="recipe-link"
+                        >
+                          {url.name} →
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
         )}
 
+        {/* Weekly Planner */}
+        {showWeeklyPlanner && weeklyPlan.length > 0 && (
+          <div className="weekly-planner">
+            <h2>📅 Wochenplan</h2>
+            <div className="weekly-plan-grid">
+              {weeklyPlan.map((dayPlan, index) => (
+                <div key={index} className="day-plan">
+                  <h3>{dayPlan.day}</h3>
+                  {dayPlan.meal ? (
+                    <div className="day-meal">
+                      <div className="day-meal-name">{dayPlan.meal.name}</div>
+                      <small>⏱️ {dayPlan.meal.prepTime} Min.</small>
+                      <select
+                        className="change-meal-select"
+                        value={dayPlan.meal.id}
+                        onChange={(e) => {
+                          const newMeal = suggestions.find(m => m.id === parseInt(e.target.value));
+                          updateWeeklyPlanDay(index, newMeal);
+                        }}
+                      >
+                        {suggestions.map(meal => (
+                          <option key={meal.id} value={meal.id}>
+                            {meal.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  ) : (
+                    <div className="no-meal">Kein Gericht</div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Info Box */}
         {suggestions.length > 0 && (
           <div className="info-box">
-            <h3>💡 Tipps zur Einkaufsliste</h3>
-            <p>
-              Klicken Sie auf "Einkaufsliste kopieren", um die Zutaten in die Zwischenablage zu kopieren.
-              Sie können diese dann direkt in Family Wall einfügen:
-            </p>
+            <h3>💡 Workflow</h3>
             <ol>
-              <li>Öffnen Sie Family Wall App</li>
-              <li>Gehen Sie zur Einkaufsliste</li>
-              <li>Fügen Sie die kopierten Zutaten ein</li>
+              <li>✅ Detailhändler gewählt: <strong>{selectedRetailer}</strong></li>
+              <li>✅ PLZ eingegeben: <strong>{postalCode}</strong></li>
+              <li>✅ Menüvorschläge mit {selectedRetailer}-Aktionen generiert</li>
+              <li>Optional: Rezept online suchen (Klick auf "📖 Rezept suchen")</li>
+              <li>Optional: Einkaufsliste exportieren (Klick auf "🛒 Einkaufsliste")</li>
+              {suggestions.length >= 7 && <li>Optional: Wochenplan generieren (Klick auf "📅 Wochenplan")</li>}
             </ol>
           </div>
         )}

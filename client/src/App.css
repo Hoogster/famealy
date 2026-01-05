@@ -494,3 +494,335 @@
   color: #666;
   font-style: italic;
 }
+
+/* New Retailer Buttons */
+.retailer-buttons {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.retailer-button {
+  flex: 1;
+  min-width: 120px;
+  padding: 15px 25px;
+  border: 3px solid #e0e0e0;
+  background: white;
+  border-radius: 12px;
+  font-size: 1.2em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  color: #333;
+}
+
+.retailer-button:hover {
+  border-color: #667eea;
+  background: #f5f7ff;
+  transform: translateY(-2px);
+}
+
+.retailer-button.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: #667eea;
+  box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+}
+
+/* Postal Code Section */
+.postal-code-section {
+  margin-top: 25px;
+  animation: slideDown 0.3s ease-out;
+}
+
+.postal-code-input-large {
+  width: 200px !important;
+  font-size: 24px !important;
+  text-align: center;
+  font-weight: 700;
+  letter-spacing: 2px;
+  border: 3px solid #ff9800 !important;
+  background: #fff8e1;
+  padding: 15px !important;
+}
+
+.postal-code-input-large:focus {
+  background: white;
+  border-color: #f57c00 !important;
+  box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.2);
+}
+
+/* Parameters Section */
+.parameters-section {
+  margin-top: 25px;
+  padding-top: 25px;
+  border-top: 2px solid #f0f0f0;
+}
+
+.param-group {
+  margin-bottom: 20px;
+}
+
+.param-group label {
+  display: block;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 10px;
+  font-size: 1.1em;
+}
+
+.param-group input[type="number"] {
+  width: 120px;
+  padding: 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  font-size: 18px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.param-group input[type="number"]:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* Time Selector */
+.time-selector {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.time-selector input[type="range"] {
+  flex: 1;
+  height: 8px;
+  border-radius: 5px;
+  background: #e0e0e0;
+  outline: none;
+  -webkit-appearance: none;
+}
+
+.time-selector input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #667eea;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.time-selector input[type="range"]::-webkit-slider-thumb:hover {
+  background: #764ba2;
+  transform: scale(1.2);
+}
+
+.time-selector input[type="range"]::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #667eea;
+  cursor: pointer;
+  border: none;
+  transition: all 0.3s;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.time-selector input[type="range"]::-moz-range-thumb:hover {
+  background: #764ba2;
+  transform: scale(1.2);
+}
+
+.time-value {
+  font-size: 1.3em;
+  font-weight: 700;
+  color: #667eea;
+  min-width: 80px;
+  text-align: right;
+}
+
+/* Favorite Button */
+.favorite-button {
+  background: none;
+  border: none;
+  font-size: 1.8em;
+  cursor: pointer;
+  padding: 5px;
+  transition: all 0.3s;
+  line-height: 1;
+}
+
+.favorite-button:hover {
+  transform: scale(1.2);
+}
+
+.favorite-button.active {
+  color: #ffd700;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+/* Meal Badges */
+.meal-badges {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 15px;
+}
+
+/* Suggestions Header */
+.suggestions-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.suggestions-header h2 {
+  margin: 0;
+}
+
+.weekly-plan-button {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+}
+
+.weekly-plan-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+}
+
+/* Weekly Planner */
+.weekly-planner {
+  background: white;
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  margin-top: 30px;
+}
+
+.weekly-planner h2 {
+  color: #667eea;
+  margin-bottom: 25px;
+  font-size: 1.8em;
+}
+
+.weekly-plan-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.day-plan {
+  background: #f8f9ff;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 20px;
+  transition: all 0.3s;
+}
+
+.day-plan:hover {
+  border-color: #667eea;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+}
+
+.day-plan h3 {
+  color: #667eea;
+  margin: 0 0 15px 0;
+  font-size: 1.2em;
+  border-bottom: 2px solid #667eea;
+  padding-bottom: 10px;
+}
+
+.day-meal {
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.day-meal-name {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+  font-size: 1.05em;
+}
+
+.day-meal small {
+  display: block;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.change-meal-select {
+  width: 100%;
+  padding: 8px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 0.9em;
+  background: white;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: border-color 0.3s;
+}
+
+.change-meal-select:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.no-meal {
+  color: #999;
+  font-style: italic;
+  text-align: center;
+  padding: 20px;
+}
+
+@media (max-width: 768px) {
+  .retailer-buttons {
+    flex-direction: column;
+  }
+
+  .retailer-button {
+    width: 100%;
+  }
+
+  .postal-code-input-large {
+    width: 100% !important;
+  }
+
+  .time-selector {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .time-value {
+    text-align: center;
+  }
+
+  .suggestions-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .weekly-plan-button {
+    width: 100%;
+  }
+
+  .weekly-plan-grid {
+    grid-template-columns: 1fr;
+  }
+}
