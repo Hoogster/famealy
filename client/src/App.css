@@ -39,75 +39,6 @@
   font-size: 1.8em;
 }
 
-.preference-group {
-  margin-bottom: 25px;
-}
-
-.preference-group label {
-  display: block;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 10px;
-  font-size: 1.1em;
-}
-
-.checkbox-label {
-  display: flex !important;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-}
-
-.checkbox-label input[type="checkbox"] {
-  width: auto !important;
-  cursor: pointer;
-}
-
-.preference-group input,
-.preference-group select {
-  width: 100%;
-  padding: 12px;
-  border: 2px solid #e0e0e0;
-  border-radius: 10px;
-  font-size: 16px;
-  transition: border-color 0.3s;
-}
-
-.preference-group input:focus,
-.preference-group select:focus {
-  outline: none;
-  border-color: #667eea;
-}
-
-.checkbox-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.tag-button {
-  padding: 10px 20px;
-  border: 2px solid #e0e0e0;
-  background: white;
-  border-radius: 25px;
-  cursor: pointer;
-  transition: all 0.3s;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.tag-button:hover {
-  border-color: #667eea;
-  background: #f5f7ff;
-}
-
-.tag-button.active {
-  background: #667eea;
-  color: white;
-  border-color: #667eea;
-}
-
 .suggest-button {
   width: 100%;
   padding: 18px;
@@ -247,20 +178,6 @@
   font-weight: bold;
   position: absolute;
   left: 5px;
-}
-
-.allergens {
-  margin-top: 15px;
-  padding: 10px;
-  background: #fff3cd;
-  border-radius: 8px;
-  font-size: 0.9em;
-  color: #856404;
-}
-
-.allergens strong {
-  display: block;
-  margin-bottom: 5px;
 }
 
 .balanced-badge {
@@ -537,41 +454,6 @@
   border: 2px solid #ff6600;
   display: inline-block;
   width: 100%;
-}
-
-/* New Retailer Buttons */
-.retailer-buttons {
-  display: flex;
-  gap: 15px;
-  flex-wrap: wrap;
-  margin-bottom: 20px;
-}
-
-.retailer-button {
-  flex: 1;
-  min-width: 120px;
-  padding: 15px 25px;
-  border: 3px solid #e0e0e0;
-  background: white;
-  border-radius: 12px;
-  font-size: 1.2em;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-  color: #333;
-}
-
-.retailer-button:hover {
-  border-color: #667eea;
-  background: #f5f7ff;
-  transform: translateY(-2px);
-}
-
-.retailer-button.active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border-color: #667eea;
-  box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
 }
 
 /* Postal Code Section */
@@ -879,14 +761,6 @@
 }
 
 @media (max-width: 768px) {
-  .retailer-buttons {
-    flex-direction: column;
-  }
-
-  .retailer-button {
-    width: 100%;
-  }
-
   .postal-code-input-large {
     width: 100% !important;
   }

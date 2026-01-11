@@ -1,124 +1,22 @@
 const mealsData = require('../server/data/meals.json');
-
-// Helper function to determine region from postal code
-function getRegionFromPostalCode(postalCode) {
-  if (!postalCode) return null;
-  const firstDigit = parseInt(postalCode.toString()[0]);
-  const regions = {
-    1: 'Westschweiz', // Geneva, Lausanne
-    2: 'Westschweiz', // Neuchâtel
-    3: 'Bern',
-    4: 'Basel',
-    5: 'Aargau/Solothurn',
-    6: 'Zentralschweiz', // Lucerne
-    7: 'Graubünden/Ticino',
-    8: 'Zürich',
-    9: 'Ostschweiz' // St. Gallen, Thurgau
-  };
-  return regions[firstDigit] || null;
-}
-
-// Check if ingredient promotion is valid for region
-function isPromoValidForRegion(ingredient, retailer, postalCode) {
-  if (!ingredient.onPromo) return false;
-  if (ingredient.retailer !== retailer) return false;
-
-  // For Migros and Coop, check regional availability
-  if ((retailer === 'Migros' || retailer === 'Coop') && postalCode) {
-    const region = getRegionFromPostalCode(postalCode);
-    // If ingredient has regional restrictions, check them
-    if (ingredient.regions && ingredient.regions.length > 0) {
-      return ingredient.regions.includes(region);
-    }
-  }
-
-  return true;
-}
-
-// Helper: Check if ingredient is a protein source
-function isProteinIngredient(ingredientName) {
-  const proteinKeywords = [
-    'fleisch', 'hack', 'rind', 'schwein', 'poulet', 'huhn', 'chicken',
-    'lachs', 'fisch', 'fish', 'salmon', 'thon', 'thunfisch',
-    'tofu', 'bohnen', 'linsen', 'kichererbsen'
-  ];
-  const nameLower = ingredientName.toLowerCase();
-  return proteinKeywords.some(keyword => nameLower.includes(keyword));
-}
-
-// Helper: Calculate intelligent score for meal based on promotions
-function calculateMealScore(meal, selectedRetailer, postalCode) {
-  const promoIngredients = meal.ingredients.filter(ing =>
-    isPromoValidForRegion(ing, selectedRetailer, postalCode)
-  );
-
-  const promoCount = promoIngredients.length;
-  const totalIngredients = meal.ingredients.length;
-
-  if (promoCount === 0) return 0;
-
-  // Base score: 10 points per promo item
-  let score = promoCount * 10;
-
-  // PROTEIN BONUS: +30 points for protein ingredients on promo
-  const hasProteinPromo = promoIngredients.some(ing =>
-    isProteinIngredient(ing.name)
-  );
-  if (hasProteinPromo) {
-    score += 30;
-  }
-
-  // SAVINGS RATIO BONUS: Percentage of ingredients on promo (0-40 points)
-  const promoRatio = promoCount / totalIngredients;
-  score += Math.floor(promoRatio * 40);
-
-  // VARIETY BONUS: Multiple different types of promos
-  const promoCategories = new Set();
-  promoIngredients.forEach(ing => {
-    if (isProteinIngredient(ing.name)) promoCategories.add('protein');
-    else if (ing.name.toLowerCase().includes('pasta') ||
-             ing.name.toLowerCase().includes('reis') ||
-             ing.name.toLowerCase().includes('kartoffel') ||
-             ing.name.toLowerCase().includes('hörnli')) {
-      promoCategories.add('starch');
-    } else if (ing.name.toLowerCase().includes('gemüse') ||
-               ing.name.toLowerCase().includes('salat') ||
-               ing.name.toLowerCase().includes('paprika') ||
-               ing.name.toLowerCase().includes('tomat') ||
-               ing.name.toLowerCase().includes('zucchetti')) {
-      promoCategories.add('vegetable');
-    } else {
-      promoCategories.add('other');
-    }
-  });
-
-  // Bonus for variety (different categories)
-  if (promoCategories.size >= 3) {
-    score += 25; // Excellent variety
-  } else if (promoCategories.size === 2) {
-    score += 15; // Good variety
-  }
-
-  // MULTIPLE PROMOS BONUS: Extra boost for many promos
-  if (promoCount >= 4) {
-    score += 20;
-  } else if (promoCount >= 3) {
-    score += 10;
-  }
-
-  return score;
-}
+const {
+  getRegionFromPostalCode,
+  isPromoValidForRegion,
+  isProteinIngredient,
+  calculateMealScore
+} = require('../shared/mealLogic');
 
 module.exports = (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  try {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
+    if (req.method === 'OPTIONS') {
+      return res.status(200).end();
+    }
 
-  const { pathname } = new URL(req.url, `http://${req.headers.host}`);
+    const { pathname } = new URL(req.url, `http://${req.headers.host}`);
 
   // GET /api/meals
   if (pathname === '/api/meals' && req.method === 'GET') {
@@ -146,6 +44,34 @@ module.exports = (req, res) => {
       selectedRetailer = null,
       postalCode = null
     } = req.body;
+
+    // Input validation
+    if (postalCode !== null) {
+      const postalCodeNum = parseInt(postalCode);
+      if (isNaN(postalCodeNum) || postalCodeNum < 1000 || postalCodeNum > 9999) {
+        return res.status(400).json({
+          error: 'Invalid postal code. Must be between 1000 and 9999.'
+        });
+      }
+    }
+
+    if (familySize < 1 || familySize > 12) {
+      return res.status(400).json({
+        error: 'Invalid family size. Must be between 1 and 12.'
+      });
+    }
+
+    if (maxPrepTime < 15 || maxPrepTime > 120) {
+      return res.status(400).json({
+        error: 'Invalid preparation time. Must be between 15 and 120 minutes.'
+      });
+    }
+
+    if (count < 1 || count > 20) {
+      return res.status(400).json({
+        error: 'Invalid count. Must be between 1 and 20.'
+      });
+    }
 
     // STRICT filtering: ONLY meals with promotions from selected retailer
     let validMeals = mealsData.filter(meal => {
@@ -260,5 +186,12 @@ module.exports = (req, res) => {
     });
   }
 
-  res.status(404).json({ error: 'Not found' });
+    res.status(404).json({ error: 'Not found' });
+  } catch (error) {
+    console.error('API Error:', error);
+    res.status(500).json({
+      error: 'Internal server error',
+      message: error.message
+    });
+  }
 };
