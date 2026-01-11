@@ -7,17 +7,67 @@
     "difficulty": "einfach",
     "servings": 4,
     "ingredients": [
-      {"name": "Spaghetti", "amount": "500g", "onPromo": true, "retailer": "Migros"},
-      {"name": "Rindshackfleisch", "amount": "400g", "onPromo": false},
-      {"name": "Tomaten passiert", "amount": "400g", "onPromo": true, "retailer": "Coop"},
-      {"name": "Zwiebeln", "amount": "2 Stück", "onPromo": false},
-      {"name": "Knoblauch", "amount": "2 Zehen", "onPromo": false},
-      {"name": "Olivenöl", "amount": "2 EL", "onPromo": false},
-      {"name": "Basilikum", "amount": "1 Bund", "onPromo": false}
+      {
+        "name": "Spaghetti",
+        "amount": "500g",
+        "onPromo": true,
+        "retailer": "Migros",
+        "originalPrice": 3.95,
+        "promoPrice": 2.95,
+        "discountPercent": 25,
+        "savings": 1,
+        "promoEndDate": "2026-01-25"
+      },
+      {
+        "name": "Rindshackfleisch",
+        "amount": "400g",
+        "onPromo": false
+      },
+      {
+        "name": "Tomaten passiert",
+        "amount": "400g",
+        "onPromo": true,
+        "retailer": "Coop",
+        "originalPrice": 1.95,
+        "promoPrice": 1.45,
+        "discountPercent": 26,
+        "savings": 0.5,
+        "promoEndDate": "2026-01-25"
+      },
+      {
+        "name": "Zwiebeln",
+        "amount": "2 Stück",
+        "onPromo": false
+      },
+      {
+        "name": "Knoblauch",
+        "amount": "2 Zehen",
+        "onPromo": false
+      },
+      {
+        "name": "Olivenöl",
+        "amount": "2 EL",
+        "onPromo": false
+      },
+      {
+        "name": "Basilikum",
+        "amount": "1 Bund",
+        "onPromo": false
+      }
     ],
-    "allergens": ["Gluten"],
-    "tags": ["familienfreundlich", "klassisch"],
-    "nutrition": {"calories": 520, "protein": "high", "carbs": "high", "balanced": true}
+    "allergens": [
+      "Gluten"
+    ],
+    "tags": [
+      "familienfreundlich",
+      "klassisch"
+    ],
+    "nutrition": {
+      "calories": 520,
+      "protein": "high",
+      "carbs": "high",
+      "balanced": true
+    }
   },
   {
     "id": 2,
@@ -27,17 +77,71 @@
     "difficulty": "mittel",
     "servings": 4,
     "ingredients": [
-      {"name": "Pouletbrustfilet", "amount": "600g", "onPromo": true, "retailer": "Denner"},
-      {"name": "Currypaste", "amount": "3 EL", "onPromo": false},
-      {"name": "Kokosmilch", "amount": "400ml", "onPromo": true, "retailer": "Aldi Suisse"},
-      {"name": "Basmatireis", "amount": "300g", "onPromo": false},
-      {"name": "Paprika", "amount": "2 Stück", "onPromo": true, "retailer": "Coop"},
-      {"name": "Zucchetti", "amount": "1 Stück", "onPromo": false},
-      {"name": "Zwiebeln", "amount": "1 Stück", "onPromo": false}
+      {
+        "name": "Pouletbrustfilet",
+        "amount": "600g",
+        "onPromo": true,
+        "retailer": "Denner",
+        "originalPrice": 18.5,
+        "promoPrice": 14.9,
+        "discountPercent": 19,
+        "savings": 3.6,
+        "promoEndDate": "2026-01-25"
+      },
+      {
+        "name": "Currypaste",
+        "amount": "3 EL",
+        "onPromo": false
+      },
+      {
+        "name": "Kokosmilch",
+        "amount": "400ml",
+        "onPromo": true,
+        "retailer": "Aldi Suisse",
+        "originalPrice": 2.95,
+        "promoPrice": 2.2,
+        "discountPercent": 25,
+        "savings": 0.75,
+        "promoEndDate": "2026-01-25"
+      },
+      {
+        "name": "Basmatireis",
+        "amount": "300g",
+        "onPromo": false
+      },
+      {
+        "name": "Paprika",
+        "amount": "2 Stück",
+        "onPromo": true,
+        "retailer": "Coop",
+        "originalPrice": 5.9,
+        "promoPrice": 3.95,
+        "discountPercent": 33,
+        "savings": 1.95,
+        "promoEndDate": "2026-01-25"
+      },
+      {
+        "name": "Zucchetti",
+        "amount": "1 Stück",
+        "onPromo": false
+      },
+      {
+        "name": "Zwiebeln",
+        "amount": "1 Stück",
+        "onPromo": false
+      }
     ],
     "allergens": [],
-    "tags": ["exotisch", "gesund"],
-    "nutrition": {"calories": 480, "protein": "high", "carbs": "medium", "balanced": true}
+    "tags": [
+      "exotisch",
+      "gesund"
+    ],
+    "nutrition": {
+      "calories": 480,
+      "protein": "high",
+      "carbs": "medium",
+      "balanced": true
+    }
   },
   {
     "id": 3,
@@ -47,17 +151,74 @@
     "difficulty": "mittel",
     "servings": 6,
     "ingredients": [
-      {"name": "Lasagneplatten", "amount": "250g", "onPromo": false},
-      {"name": "Zucchetti", "amount": "2 Stück", "onPromo": true, "retailer": "Migros"},
-      {"name": "Aubergine", "amount": "1 Stück", "onPromo": false},
-      {"name": "Tomaten passiert", "amount": "800g", "onPromo": true, "retailer": "Lidl Schweiz"},
-      {"name": "Mozzarella", "amount": "250g", "onPromo": true, "retailer": "Coop"},
-      {"name": "Ricotta", "amount": "250g", "onPromo": false},
-      {"name": "Parmesan", "amount": "100g", "onPromo": false}
+      {
+        "name": "Lasagneplatten",
+        "amount": "250g",
+        "onPromo": false
+      },
+      {
+        "name": "Zucchetti",
+        "amount": "2 Stück",
+        "onPromo": true,
+        "retailer": "Migros",
+        "originalPrice": 3.5,
+        "promoPrice": 2.5,
+        "discountPercent": 29,
+        "savings": 1,
+        "promoEndDate": "2026-01-25"
+      },
+      {
+        "name": "Aubergine",
+        "amount": "1 Stück",
+        "onPromo": false
+      },
+      {
+        "name": "Tomaten passiert",
+        "amount": "800g",
+        "onPromo": true,
+        "retailer": "Lidl Schweiz",
+        "originalPrice": 1.95,
+        "promoPrice": 1.45,
+        "discountPercent": 26,
+        "savings": 0.5,
+        "promoEndDate": "2026-01-25"
+      },
+      {
+        "name": "Mozzarella",
+        "amount": "250g",
+        "onPromo": true,
+        "retailer": "Coop",
+        "originalPrice": 4.95,
+        "promoPrice": 3.75,
+        "discountPercent": 24,
+        "savings": 1.2,
+        "promoEndDate": "2026-01-25"
+      },
+      {
+        "name": "Ricotta",
+        "amount": "250g",
+        "onPromo": false
+      },
+      {
+        "name": "Parmesan",
+        "amount": "100g",
+        "onPromo": false
+      }
     ],
-    "allergens": ["Gluten", "Milchprodukte"],
-    "tags": ["vegetarisch", "familienfreundlich"],
-    "nutrition": {"calories": 420, "protein": "medium", "carbs": "medium", "balanced": true}
+    "allergens": [
+      "Gluten",
+      "Milchprodukte"
+    ],
+    "tags": [
+      "vegetarisch",
+      "familienfreundlich"
+    ],
+    "nutrition": {
+      "calories": 420,
+      "protein": "medium",
+      "carbs": "medium",
+      "balanced": true
+    }
   },
   {
     "id": 4,
@@ -67,17 +228,68 @@
     "difficulty": "einfach",
     "servings": 4,
     "ingredients": [
-      {"name": "Lachsfilet", "amount": "600g", "onPromo": true, "retailer": "Coop"},
-      {"name": "Kartoffeln", "amount": "800g", "onPromo": false},
-      {"name": "Paprika", "amount": "2 Stück", "onPromo": true, "retailer": "Migros"},
-      {"name": "Zucchetti", "amount": "2 Stück", "onPromo": false},
-      {"name": "Olivenöl", "amount": "3 EL", "onPromo": false},
-      {"name": "Kräuter gemischt", "amount": "1 Bund", "onPromo": false},
-      {"name": "Zitrone", "amount": "1 Stück", "onPromo": false}
+      {
+        "name": "Lachsfilet",
+        "amount": "600g",
+        "onPromo": true,
+        "retailer": "Coop",
+        "originalPrice": 29.9,
+        "promoPrice": 24.9,
+        "discountPercent": 17,
+        "savings": 5,
+        "promoEndDate": "2026-01-25"
+      },
+      {
+        "name": "Kartoffeln",
+        "amount": "800g",
+        "onPromo": false
+      },
+      {
+        "name": "Paprika",
+        "amount": "2 Stück",
+        "onPromo": true,
+        "retailer": "Migros",
+        "originalPrice": 5.9,
+        "promoPrice": 3.95,
+        "discountPercent": 33,
+        "savings": 1.95,
+        "promoEndDate": "2026-01-25"
+      },
+      {
+        "name": "Zucchetti",
+        "amount": "2 Stück",
+        "onPromo": false
+      },
+      {
+        "name": "Olivenöl",
+        "amount": "3 EL",
+        "onPromo": false
+      },
+      {
+        "name": "Kräuter gemischt",
+        "amount": "1 Bund",
+        "onPromo": false
+      },
+      {
+        "name": "Zitrone",
+        "amount": "1 Stück",
+        "onPromo": false
+      }
     ],
-    "allergens": ["Fisch"],
-    "tags": ["gesund", "leicht", "omega-3"],
-    "nutrition": {"calories": 450, "protein": "high", "carbs": "medium", "balanced": true}
+    "allergens": [
+      "Fisch"
+    ],
+    "tags": [
+      "gesund",
+      "leicht",
+      "omega-3"
+    ],
+    "nutrition": {
+      "calories": 450,
+      "protein": "high",
+      "carbs": "medium",
+      "balanced": true
+    }
   },
   {
     "id": 5,
@@ -87,16 +299,69 @@
     "difficulty": "einfach",
     "servings": 4,
     "ingredients": [
-      {"name": "Hörnli", "amount": "400g", "onPromo": true, "retailer": "Migros"},
-      {"name": "Kartoffeln", "amount": "400g", "onPromo": false},
-      {"name": "Käse gerieben", "amount": "200g", "onPromo": true, "retailer": "Coop"},
-      {"name": "Rahm", "amount": "200ml", "onPromo": false},
-      {"name": "Zwiebeln", "amount": "2 Stück", "onPromo": false},
-      {"name": "Apfelmus", "amount": "400g", "onPromo": true, "retailer": "Denner"}
+      {
+        "name": "Hörnli",
+        "amount": "400g",
+        "onPromo": true,
+        "retailer": "Migros",
+        "originalPrice": 2.95,
+        "promoPrice": 2.2,
+        "discountPercent": 25,
+        "savings": 0.75,
+        "promoEndDate": "2026-01-25"
+      },
+      {
+        "name": "Kartoffeln",
+        "amount": "400g",
+        "onPromo": false
+      },
+      {
+        "name": "Käse gerieben",
+        "amount": "200g",
+        "onPromo": true,
+        "retailer": "Coop",
+        "originalPrice": 6.95,
+        "promoPrice": 5.45,
+        "discountPercent": 22,
+        "savings": 1.5,
+        "promoEndDate": "2026-01-25"
+      },
+      {
+        "name": "Rahm",
+        "amount": "200ml",
+        "onPromo": false
+      },
+      {
+        "name": "Zwiebeln",
+        "amount": "2 Stück",
+        "onPromo": false
+      },
+      {
+        "name": "Apfelmus",
+        "amount": "400g",
+        "onPromo": true,
+        "retailer": "Denner",
+        "originalPrice": 3.5,
+        "promoPrice": 2.5,
+        "discountPercent": 29,
+        "savings": 1,
+        "promoEndDate": "2026-01-25"
+      }
     ],
-    "allergens": ["Gluten", "Milchprodukte"],
-    "tags": ["schweizer-klassiker", "familienfreundlich"],
-    "nutrition": {"calories": 580, "protein": "medium", "carbs": "high", "balanced": false}
+    "allergens": [
+      "Gluten",
+      "Milchprodukte"
+    ],
+    "tags": [
+      "schweizer-klassiker",
+      "familienfreundlich"
+    ],
+    "nutrition": {
+      "calories": 580,
+      "protein": "medium",
+      "carbs": "high",
+      "balanced": false
+    }
   },
   {
     "id": 6,
@@ -106,17 +371,71 @@
     "difficulty": "einfach",
     "servings": 6,
     "ingredients": [
-      {"name": "Rindshackfleisch", "amount": "500g", "onPromo": true, "retailer": "Aldi Suisse"},
-      {"name": "Kidneybohnen", "amount": "400g", "onPromo": false},
-      {"name": "Tomaten passiert", "amount": "800g", "onPromo": true, "retailer": "Lidl Schweiz"},
-      {"name": "Paprika", "amount": "2 Stück", "onPromo": false},
-      {"name": "Zwiebeln", "amount": "2 Stück", "onPromo": false},
-      {"name": "Chilipulver", "amount": "2 TL", "onPromo": false},
-      {"name": "Mais", "amount": "200g", "onPromo": true, "retailer": "Migros"}
+      {
+        "name": "Rindshackfleisch",
+        "amount": "500g",
+        "onPromo": true,
+        "retailer": "Aldi Suisse",
+        "originalPrice": 12.5,
+        "promoPrice": 9.9,
+        "discountPercent": 21,
+        "savings": 2.6,
+        "promoEndDate": "2026-01-25"
+      },
+      {
+        "name": "Kidneybohnen",
+        "amount": "400g",
+        "onPromo": false
+      },
+      {
+        "name": "Tomaten passiert",
+        "amount": "800g",
+        "onPromo": true,
+        "retailer": "Lidl Schweiz",
+        "originalPrice": 1.95,
+        "promoPrice": 1.45,
+        "discountPercent": 26,
+        "savings": 0.5,
+        "promoEndDate": "2026-01-25"
+      },
+      {
+        "name": "Paprika",
+        "amount": "2 Stück",
+        "onPromo": false
+      },
+      {
+        "name": "Zwiebeln",
+        "amount": "2 Stück",
+        "onPromo": false
+      },
+      {
+        "name": "Chilipulver",
+        "amount": "2 TL",
+        "onPromo": false
+      },
+      {
+        "name": "Mais",
+        "amount": "200g",
+        "onPromo": true,
+        "retailer": "Migros",
+        "originalPrice": 2.5,
+        "promoPrice": 1.75,
+        "discountPercent": 30,
+        "savings": 0.75,
+        "promoEndDate": "2026-01-25"
+      }
     ],
     "allergens": [],
-    "tags": ["herzhaft", "familienfreundlich"],
-    "nutrition": {"calories": 380, "protein": "high", "carbs": "medium", "balanced": true}
+    "tags": [
+      "herzhaft",
+      "familienfreundlich"
+    ],
+    "nutrition": {
+      "calories": 380,
+      "protein": "high",
+      "carbs": "medium",
+      "balanced": true
+    }
   },
   {
     "id": 7,
@@ -126,17 +445,74 @@
     "difficulty": "einfach",
     "servings": 4,
     "ingredients": [
-      {"name": "Tofu natur", "amount": "400g", "onPromo": true, "retailer": "Coop"},
-      {"name": "Brokkoli", "amount": "300g", "onPromo": false},
-      {"name": "Paprika", "amount": "2 Stück", "onPromo": true, "retailer": "Migros"},
-      {"name": "Karotten", "amount": "3 Stück", "onPromo": false},
-      {"name": "Sojasauce", "amount": "3 EL", "onPromo": false},
-      {"name": "Ingwer", "amount": "1 Stück", "onPromo": false},
-      {"name": "Reisnudeln", "amount": "300g", "onPromo": true, "retailer": "Aldi Suisse"}
+      {
+        "name": "Tofu natur",
+        "amount": "400g",
+        "onPromo": true,
+        "retailer": "Coop",
+        "originalPrice": 4.5,
+        "promoPrice": 3.5,
+        "discountPercent": 22,
+        "savings": 1,
+        "promoEndDate": "2026-01-25"
+      },
+      {
+        "name": "Brokkoli",
+        "amount": "300g",
+        "onPromo": false
+      },
+      {
+        "name": "Paprika",
+        "amount": "2 Stück",
+        "onPromo": true,
+        "retailer": "Migros",
+        "originalPrice": 5.9,
+        "promoPrice": 3.95,
+        "discountPercent": 33,
+        "savings": 1.95,
+        "promoEndDate": "2026-01-25"
+      },
+      {
+        "name": "Karotten",
+        "amount": "3 Stück",
+        "onPromo": false
+      },
+      {
+        "name": "Sojasauce",
+        "amount": "3 EL",
+        "onPromo": false
+      },
+      {
+        "name": "Ingwer",
+        "amount": "1 Stück",
+        "onPromo": false
+      },
+      {
+        "name": "Reisnudeln",
+        "amount": "300g",
+        "onPromo": true,
+        "retailer": "Aldi Suisse",
+        "originalPrice": 5.5,
+        "promoPrice": 4.2,
+        "discountPercent": 24,
+        "savings": 1.3,
+        "promoEndDate": "2026-01-25"
+      }
     ],
-    "allergens": ["Soja"],
-    "tags": ["vegan", "gesund", "schnell"],
-    "nutrition": {"calories": 320, "protein": "medium", "carbs": "medium", "balanced": true}
+    "allergens": [
+      "Soja"
+    ],
+    "tags": [
+      "vegan",
+      "gesund",
+      "schnell"
+    ],
+    "nutrition": {
+      "calories": 320,
+      "protein": "medium",
+      "carbs": "medium",
+      "balanced": true
+    }
   },
   {
     "id": 8,
@@ -146,17 +522,68 @@
     "difficulty": "mittel",
     "servings": 4,
     "ingredients": [
-      {"name": "Schweinsschnitzel", "amount": "4 Stück", "onPromo": true, "retailer": "Denner"},
-      {"name": "Paniermehl", "amount": "100g", "onPromo": false},
-      {"name": "Eier", "amount": "2 Stück", "onPromo": false},
-      {"name": "Kartoffeln", "amount": "1kg", "onPromo": true, "retailer": "Migros"},
-      {"name": "Mayonnaise", "amount": "150g", "onPromo": false},
-      {"name": "Essig", "amount": "3 EL", "onPromo": false},
-      {"name": "Gurken", "amount": "2 Stück", "onPromo": false}
+      {
+        "name": "Schweinsschnitzel",
+        "amount": "4 Stück",
+        "onPromo": true,
+        "retailer": "Denner",
+        "originalPrice": 19.9,
+        "promoPrice": 15.9,
+        "discountPercent": 20,
+        "savings": 4,
+        "promoEndDate": "2026-01-25"
+      },
+      {
+        "name": "Paniermehl",
+        "amount": "100g",
+        "onPromo": false
+      },
+      {
+        "name": "Eier",
+        "amount": "2 Stück",
+        "onPromo": false
+      },
+      {
+        "name": "Kartoffeln",
+        "amount": "1kg",
+        "onPromo": true,
+        "retailer": "Migros",
+        "originalPrice": 2.95,
+        "promoPrice": 1.95,
+        "discountPercent": 34,
+        "savings": 1,
+        "promoEndDate": "2026-01-25"
+      },
+      {
+        "name": "Mayonnaise",
+        "amount": "150g",
+        "onPromo": false
+      },
+      {
+        "name": "Essig",
+        "amount": "3 EL",
+        "onPromo": false
+      },
+      {
+        "name": "Gurken",
+        "amount": "2 Stück",
+        "onPromo": false
+      }
     ],
-    "allergens": ["Gluten", "Ei"],
-    "tags": ["traditionell", "familienfreundlich"],
-    "nutrition": {"calories": 620, "protein": "high", "carbs": "medium", "balanced": false}
+    "allergens": [
+      "Gluten",
+      "Ei"
+    ],
+    "tags": [
+      "traditionell",
+      "familienfreundlich"
+    ],
+    "nutrition": {
+      "calories": 620,
+      "protein": "high",
+      "carbs": "medium",
+      "balanced": false
+    }
   },
   {
     "id": 9,
@@ -166,17 +593,75 @@
     "difficulty": "einfach",
     "servings": 4,
     "ingredients": [
-      {"name": "Penne", "amount": "400g", "onPromo": true, "retailer": "Lidl Schweiz"},
-      {"name": "Basilikum", "amount": "1 Bund", "onPromo": false},
-      {"name": "Pinienkerne", "amount": "50g", "onPromo": false},
-      {"name": "Parmesan", "amount": "80g", "onPromo": true, "retailer": "Coop"},
-      {"name": "Kirschtomaten", "amount": "250g", "onPromo": true, "retailer": "Migros"},
-      {"name": "Knoblauch", "amount": "2 Zehen", "onPromo": false},
-      {"name": "Olivenöl", "amount": "100ml", "onPromo": false}
+      {
+        "name": "Penne",
+        "amount": "400g",
+        "onPromo": true,
+        "retailer": "Lidl Schweiz",
+        "originalPrice": 3.95,
+        "promoPrice": 2.75,
+        "discountPercent": 30,
+        "savings": 1.2,
+        "promoEndDate": "2026-01-25"
+      },
+      {
+        "name": "Basilikum",
+        "amount": "1 Bund",
+        "onPromo": false
+      },
+      {
+        "name": "Pinienkerne",
+        "amount": "50g",
+        "onPromo": false
+      },
+      {
+        "name": "Parmesan",
+        "amount": "80g",
+        "onPromo": true,
+        "retailer": "Coop",
+        "originalPrice": 9.95,
+        "promoPrice": 7.95,
+        "discountPercent": 20,
+        "savings": 2,
+        "promoEndDate": "2026-01-25"
+      },
+      {
+        "name": "Kirschtomaten",
+        "amount": "250g",
+        "onPromo": true,
+        "retailer": "Migros",
+        "originalPrice": 4.5,
+        "promoPrice": 3.2,
+        "discountPercent": 29,
+        "savings": 1.3,
+        "promoEndDate": "2026-01-25"
+      },
+      {
+        "name": "Knoblauch",
+        "amount": "2 Zehen",
+        "onPromo": false
+      },
+      {
+        "name": "Olivenöl",
+        "amount": "100ml",
+        "onPromo": false
+      }
     ],
-    "allergens": ["Gluten", "Milchprodukte", "Nüsse"],
-    "tags": ["schnell", "vegetarisch"],
-    "nutrition": {"calories": 480, "protein": "medium", "carbs": "high", "balanced": true}
+    "allergens": [
+      "Gluten",
+      "Milchprodukte",
+      "Nüsse"
+    ],
+    "tags": [
+      "schnell",
+      "vegetarisch"
+    ],
+    "nutrition": {
+      "calories": 480,
+      "protein": "medium",
+      "carbs": "high",
+      "balanced": true
+    }
   },
   {
     "id": 10,
@@ -186,17 +671,67 @@
     "difficulty": "mittel",
     "servings": 4,
     "ingredients": [
-      {"name": "Rindfleisch", "amount": "600g", "onPromo": true, "retailer": "Coop"},
-      {"name": "Champignons", "amount": "300g", "onPromo": false},
-      {"name": "Rahm", "amount": "200ml", "onPromo": false},
-      {"name": "Weisswein", "amount": "100ml", "onPromo": false},
-      {"name": "Rösti", "amount": "800g", "onPromo": true, "retailer": "Migros"},
-      {"name": "Zwiebeln", "amount": "2 Stück", "onPromo": false},
-      {"name": "Butter", "amount": "30g", "onPromo": false}
+      {
+        "name": "Rindfleisch",
+        "amount": "600g",
+        "onPromo": true,
+        "retailer": "Coop",
+        "originalPrice": 24.9,
+        "promoPrice": 19.9,
+        "discountPercent": 20,
+        "savings": 5,
+        "promoEndDate": "2026-01-25"
+      },
+      {
+        "name": "Champignons",
+        "amount": "300g",
+        "onPromo": false
+      },
+      {
+        "name": "Rahm",
+        "amount": "200ml",
+        "onPromo": false
+      },
+      {
+        "name": "Weisswein",
+        "amount": "100ml",
+        "onPromo": false
+      },
+      {
+        "name": "Rösti",
+        "amount": "800g",
+        "onPromo": true,
+        "retailer": "Migros",
+        "originalPrice": 5.95,
+        "promoPrice": 4.45,
+        "discountPercent": 25,
+        "savings": 1.5,
+        "promoEndDate": "2026-01-25"
+      },
+      {
+        "name": "Zwiebeln",
+        "amount": "2 Stück",
+        "onPromo": false
+      },
+      {
+        "name": "Butter",
+        "amount": "30g",
+        "onPromo": false
+      }
     ],
-    "allergens": ["Milchprodukte"],
-    "tags": ["schweizer-klassiker", "herzhaft"],
-    "nutrition": {"calories": 580, "protein": "high", "carbs": "medium", "balanced": false}
+    "allergens": [
+      "Milchprodukte"
+    ],
+    "tags": [
+      "schweizer-klassiker",
+      "herzhaft"
+    ],
+    "nutrition": {
+      "calories": 580,
+      "protein": "high",
+      "carbs": "medium",
+      "balanced": false
+    }
   },
   {
     "id": 11,
@@ -206,17 +741,68 @@
     "difficulty": "einfach",
     "servings": 4,
     "ingredients": [
-      {"name": "Karotten", "amount": "3 Stück", "onPromo": false},
-      {"name": "Sellerie", "amount": "2 Stangen", "onPromo": false},
-      {"name": "Kartoffeln", "amount": "2 Stück", "onPromo": false},
-      {"name": "Gemüsebrühe", "amount": "1.5L", "onPromo": false},
-      {"name": "Tomaten passiert", "amount": "400g", "onPromo": true, "retailer": "Aldi Suisse"},
-      {"name": "Weisse Bohnen", "amount": "200g", "onPromo": false},
-      {"name": "Vollkornbrot", "amount": "1 Stück", "onPromo": true, "retailer": "Coop"}
+      {
+        "name": "Karotten",
+        "amount": "3 Stück",
+        "onPromo": false
+      },
+      {
+        "name": "Sellerie",
+        "amount": "2 Stangen",
+        "onPromo": false
+      },
+      {
+        "name": "Kartoffeln",
+        "amount": "2 Stück",
+        "onPromo": false
+      },
+      {
+        "name": "Gemüsebrühe",
+        "amount": "1.5L",
+        "onPromo": false
+      },
+      {
+        "name": "Tomaten passiert",
+        "amount": "400g",
+        "onPromo": true,
+        "retailer": "Aldi Suisse",
+        "originalPrice": 1.95,
+        "promoPrice": 1.45,
+        "discountPercent": 26,
+        "savings": 0.5,
+        "promoEndDate": "2026-01-25"
+      },
+      {
+        "name": "Weisse Bohnen",
+        "amount": "200g",
+        "onPromo": false
+      },
+      {
+        "name": "Vollkornbrot",
+        "amount": "1 Stück",
+        "onPromo": true,
+        "retailer": "Coop",
+        "originalPrice": 4.2,
+        "promoPrice": 3.2,
+        "discountPercent": 24,
+        "savings": 1,
+        "promoEndDate": "2026-01-25"
+      }
     ],
-    "allergens": ["Gluten"],
-    "tags": ["gesund", "leicht", "vegetarisch"],
-    "nutrition": {"calories": 280, "protein": "medium", "carbs": "medium", "balanced": true}
+    "allergens": [
+      "Gluten"
+    ],
+    "tags": [
+      "gesund",
+      "leicht",
+      "vegetarisch"
+    ],
+    "nutrition": {
+      "calories": 280,
+      "protein": "medium",
+      "carbs": "medium",
+      "balanced": true
+    }
   },
   {
     "id": 12,
@@ -226,17 +812,74 @@
     "difficulty": "einfach",
     "servings": 4,
     "ingredients": [
-      {"name": "Pouletbrust", "amount": "500g", "onPromo": true, "retailer": "Denner"},
-      {"name": "Tortillas", "amount": "8 Stück", "onPromo": true, "retailer": "Migros"},
-      {"name": "Salat", "amount": "1 Kopf", "onPromo": false},
-      {"name": "Tomaten", "amount": "3 Stück", "onPromo": false},
-      {"name": "Cheddar", "amount": "150g", "onPromo": false},
-      {"name": "Sauerrahm", "amount": "200g", "onPromo": true, "retailer": "Coop"},
-      {"name": "Taco-Gewürz", "amount": "1 Packung", "onPromo": false}
+      {
+        "name": "Pouletbrust",
+        "amount": "500g",
+        "onPromo": true,
+        "retailer": "Denner",
+        "originalPrice": 17.9,
+        "promoPrice": 13.9,
+        "discountPercent": 22,
+        "savings": 4,
+        "promoEndDate": "2026-01-25"
+      },
+      {
+        "name": "Tortillas",
+        "amount": "8 Stück",
+        "onPromo": true,
+        "retailer": "Migros",
+        "originalPrice": 4.95,
+        "promoPrice": 3.95,
+        "discountPercent": 20,
+        "savings": 1,
+        "promoEndDate": "2026-01-25"
+      },
+      {
+        "name": "Salat",
+        "amount": "1 Kopf",
+        "onPromo": false
+      },
+      {
+        "name": "Tomaten",
+        "amount": "3 Stück",
+        "onPromo": false
+      },
+      {
+        "name": "Cheddar",
+        "amount": "150g",
+        "onPromo": false
+      },
+      {
+        "name": "Sauerrahm",
+        "amount": "200g",
+        "onPromo": true,
+        "retailer": "Coop",
+        "originalPrice": 2.95,
+        "promoPrice": 2.2,
+        "discountPercent": 25,
+        "savings": 0.75,
+        "promoEndDate": "2026-01-25"
+      },
+      {
+        "name": "Taco-Gewürz",
+        "amount": "1 Packung",
+        "onPromo": false
+      }
     ],
-    "allergens": ["Gluten", "Milchprodukte"],
-    "tags": ["familienfreundlich", "interaktiv"],
-    "nutrition": {"calories": 450, "protein": "high", "carbs": "medium", "balanced": true}
+    "allergens": [
+      "Gluten",
+      "Milchprodukte"
+    ],
+    "tags": [
+      "familienfreundlich",
+      "interaktiv"
+    ],
+    "nutrition": {
+      "calories": 450,
+      "protein": "high",
+      "carbs": "medium",
+      "balanced": true
+    }
   },
   {
     "id": 13,
@@ -246,17 +889,69 @@
     "difficulty": "mittel",
     "servings": 6,
     "ingredients": [
-      {"name": "Blätterteig", "amount": "1 Packung", "onPromo": true, "retailer": "Lidl Schweiz"},
-      {"name": "Eier", "amount": "4 Stück", "onPromo": false},
-      {"name": "Rahm", "amount": "200ml", "onPromo": false},
-      {"name": "Lauch", "amount": "2 Stangen", "onPromo": true, "retailer": "Coop"},
-      {"name": "Spinat", "amount": "200g", "onPromo": false},
-      {"name": "Gruyère", "amount": "150g", "onPromo": false},
-      {"name": "Cherrytomaten", "amount": "150g", "onPromo": false}
+      {
+        "name": "Blätterteig",
+        "amount": "1 Packung",
+        "onPromo": true,
+        "retailer": "Lidl Schweiz",
+        "originalPrice": 5.95,
+        "promoPrice": 4.5,
+        "discountPercent": 24,
+        "savings": 1.45,
+        "promoEndDate": "2026-01-25"
+      },
+      {
+        "name": "Eier",
+        "amount": "4 Stück",
+        "onPromo": false
+      },
+      {
+        "name": "Rahm",
+        "amount": "200ml",
+        "onPromo": false
+      },
+      {
+        "name": "Lauch",
+        "amount": "2 Stangen",
+        "onPromo": true,
+        "retailer": "Coop",
+        "originalPrice": 3.5,
+        "promoPrice": 2.5,
+        "discountPercent": 29,
+        "savings": 1,
+        "promoEndDate": "2026-01-25"
+      },
+      {
+        "name": "Spinat",
+        "amount": "200g",
+        "onPromo": false
+      },
+      {
+        "name": "Gruyère",
+        "amount": "150g",
+        "onPromo": false
+      },
+      {
+        "name": "Cherrytomaten",
+        "amount": "150g",
+        "onPromo": false
+      }
     ],
-    "allergens": ["Gluten", "Ei", "Milchprodukte"],
-    "tags": ["vegetarisch", "brunch"],
-    "nutrition": {"calories": 420, "protein": "medium", "carbs": "medium", "balanced": true}
+    "allergens": [
+      "Gluten",
+      "Ei",
+      "Milchprodukte"
+    ],
+    "tags": [
+      "vegetarisch",
+      "brunch"
+    ],
+    "nutrition": {
+      "calories": 420,
+      "protein": "medium",
+      "carbs": "medium",
+      "balanced": true
+    }
   },
   {
     "id": 14,
@@ -266,16 +961,73 @@
     "difficulty": "mittel",
     "servings": 4,
     "ingredients": [
-      {"name": "Rote Linsen", "amount": "300g", "onPromo": true, "retailer": "Aldi Suisse"},
-      {"name": "Kokosmilch", "amount": "400ml", "onPromo": false},
-      {"name": "Tomaten passiert", "amount": "400g", "onPromo": true, "retailer": "Migros"},
-      {"name": "Zwiebeln", "amount": "2 Stück", "onPromo": false},
-      {"name": "Ingwer", "amount": "1 Stück", "onPromo": false},
-      {"name": "Currypulver", "amount": "2 EL", "onPromo": false},
-      {"name": "Naan-Brot", "amount": "4 Stück", "onPromo": true, "retailer": "Coop"}
+      {
+        "name": "Rote Linsen",
+        "amount": "300g",
+        "onPromo": true,
+        "retailer": "Aldi Suisse",
+        "originalPrice": 3.95,
+        "promoPrice": 2.95,
+        "discountPercent": 25,
+        "savings": 1,
+        "promoEndDate": "2026-01-25"
+      },
+      {
+        "name": "Kokosmilch",
+        "amount": "400ml",
+        "onPromo": false
+      },
+      {
+        "name": "Tomaten passiert",
+        "amount": "400g",
+        "onPromo": true,
+        "retailer": "Migros",
+        "originalPrice": 1.95,
+        "promoPrice": 1.45,
+        "discountPercent": 26,
+        "savings": 0.5,
+        "promoEndDate": "2026-01-25"
+      },
+      {
+        "name": "Zwiebeln",
+        "amount": "2 Stück",
+        "onPromo": false
+      },
+      {
+        "name": "Ingwer",
+        "amount": "1 Stück",
+        "onPromo": false
+      },
+      {
+        "name": "Currypulver",
+        "amount": "2 EL",
+        "onPromo": false
+      },
+      {
+        "name": "Naan-Brot",
+        "amount": "4 Stück",
+        "onPromo": true,
+        "retailer": "Coop",
+        "originalPrice": 4.5,
+        "promoPrice": 3.5,
+        "discountPercent": 22,
+        "savings": 1,
+        "promoEndDate": "2026-01-25"
+      }
     ],
-    "allergens": ["Gluten"],
-    "tags": ["vegan", "gesund", "proteinreich"],
-    "nutrition": {"calories": 380, "protein": "high", "carbs": "medium", "balanced": true}
+    "allergens": [
+      "Gluten"
+    ],
+    "tags": [
+      "vegan",
+      "gesund",
+      "proteinreich"
+    ],
+    "nutrition": {
+      "calories": 380,
+      "protein": "high",
+      "carbs": "medium",
+      "balanced": true
+    }
   }
 ]

@@ -1,0 +1,436 @@
+/* ===================================
+   PRICING & SAVINGS DISPLAY
+   =================================== */
+
+.savings-summary {
+  margin: 20px 0;
+  padding: 20px;
+  background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+  border-radius: 12px;
+  color: white;
+}
+
+.savings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  font-size: 1.1em;
+}
+
+.savings-amount {
+  font-size: 1.4em;
+  font-weight: 700;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.savings-details {
+  margin-top: 10px;
+}
+
+.price-comparison {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  font-size: 0.95em;
+}
+
+.original-total {
+  text-decoration: line-through;
+  opacity: 0.8;
+}
+
+.promo-total {
+  font-weight: 700;
+  font-size: 1.1em;
+}
+
+.savings-meter {
+  margin-top: 15px;
+}
+
+.meter-bar {
+  width: 100%;
+  height: 12px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.meter-fill {
+  height: 100%;
+  background: white;
+  border-radius: 6px;
+  transition: width 0.5s ease;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.meter-label {
+  margin-top: 8px;
+  font-size: 0.9em;
+  text-align: center;
+  font-weight: 600;
+}
+
+/* ===================================
+   ENHANCED INGREDIENT PRICING
+   =================================== */
+
+.ingredient-main {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ingredient-name {
+  font-weight: 500;
+}
+
+.ingredient-pricing {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  font-size: 0.9em;
+  padding: 5px 10px;
+  background: rgba(255, 152, 0, 0.1);
+  border-radius: 5px;
+}
+
+.price-original {
+  text-decoration: line-through;
+  color: #999;
+  font-weight: 400;
+}
+
+.price-promo {
+  color: #ff6600;
+  font-weight: 700;
+  font-size: 1.1em;
+}
+
+.price-discount {
+  background: #ff6600;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.85em;
+  font-weight: 700;
+}
+
+.promo-details {
+  display: flex;
+  gap: 10px;
+  margin-top: 5px;
+  flex-wrap: wrap;
+  font-size: 0.85em;
+}
+
+.promo-expires {
+  color: #666;
+  font-style: italic;
+}
+
+/* ===================================
+   ADD TO PLAN BUTTON
+   =================================== */
+
+.add-to-plan-button {
+  background: linear-gradient(135deg, #8e44ad 0%, #9b59b6 100%);
+  color: white;
+}
+
+.add-to-plan-button:hover {
+  background: linear-gradient(135deg, #7d3c98 0%, #8e44ad 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(142, 68, 173, 0.3);
+}
+
+/* ===================================
+   ENHANCED WEEKLY PLANNER
+   =================================== */
+
+.weekly-planner-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.planner-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.export-weekly-button {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+}
+
+.export-weekly-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+}
+
+.clear-plan-button {
+  padding: 12px 24px;
+  background: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.clear-plan-button:hover {
+  background: #c0392b;
+  transform: translateY(-2px);
+}
+
+.day-plan-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.clear-day-button {
+  background: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  font-size: 1.4em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+  line-height: 1;
+  padding: 0;
+}
+
+.clear-day-button:hover {
+  background: #c0392b;
+  transform: scale(1.1);
+}
+
+.day-meal-info {
+  display: block;
+  color: #666;
+  margin: 8px 0;
+  font-size: 0.9em;
+}
+
+.day-meal-promos {
+  background: #ff9800;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-size: 0.85em;
+  font-weight: 600;
+  margin: 10px 0;
+  display: inline-block;
+}
+
+/* Custom Meal Entry */
+.day-custom {
+  padding: 15px;
+  background: #fff3e0;
+  border-radius: 8px;
+  border: 2px dashed #ff9800;
+}
+
+.custom-meal-display {
+  font-weight: 600;
+  color: #ff6600;
+  margin-bottom: 10px;
+  font-size: 1.05em;
+}
+
+.custom-meal-input {
+  width: 100%;
+  padding: 10px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 0.95em;
+  transition: border-color 0.3s;
+}
+
+.custom-meal-input:focus {
+  outline: none;
+  border-color: #ff9800;
+  box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.1);
+}
+
+/* Empty Day Slot */
+.day-empty {
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 2px dashed #ddd;
+}
+
+.empty-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.or-divider {
+  text-align: center;
+  color: #999;
+  font-size: 0.9em;
+  font-style: italic;
+  margin: 5px 0;
+}
+
+.add-meal-select {
+  width: 100%;
+  padding: 10px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 0.95em;
+  background: white;
+  cursor: pointer;
+  transition: border-color 0.3s;
+}
+
+.add-meal-select:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+/* ===================================
+   WEEKLY SUMMARY STATS
+   =================================== */
+
+.weekly-summary {
+  margin-top: 30px;
+  padding: 25px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 15px;
+  color: white;
+}
+
+.weekly-summary h3 {
+  margin: 0 0 20px 0;
+  font-size: 1.5em;
+  text-align: center;
+}
+
+.summary-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 20px;
+}
+
+.stat {
+  text-align: center;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+}
+
+.stat-value {
+  font-size: 2em;
+  font-weight: 700;
+  margin-bottom: 8px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.stat-label {
+  font-size: 0.9em;
+  opacity: 0.9;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* ===================================
+   RESPONSIVE ADJUSTMENTS
+   =================================== */
+
+@media (max-width: 768px) {
+  .savings-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .price-comparison {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .ingredient-pricing {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .weekly-planner-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .planner-actions {
+    flex-direction: column;
+  }
+
+  .export-weekly-button,
+  .clear-plan-button {
+    width: 100%;
+  }
+
+  .summary-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .stat-value {
+    font-size: 1.8em;
+  }
+}
+
+/* ===================================
+   ANIMATIONS
+   =================================== */
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.savings-summary {
+  animation: slideIn 0.3s ease-out;
+}
+
+.day-plan {
+  animation: slideIn 0.3s ease-out;
+}
+
+.day-plan:nth-child(1) { animation-delay: 0.05s; }
+.day-plan:nth-child(2) { animation-delay: 0.1s; }
+.day-plan:nth-child(3) { animation-delay: 0.15s; }
+.day-plan:nth-child(4) { animation-delay: 0.2s; }
+.day-plan:nth-child(5) { animation-delay: 0.25s; }
+.day-plan:nth-child(6) { animation-delay: 0.3s; }
+.day-plan:nth-child(7) { animation-delay: 0.35s; }

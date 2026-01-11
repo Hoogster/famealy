@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
+import './enhancements.css';
 
 // Retailer configuration - easy to extend for future phases
 // Phase 1: Migros only (hardcoded)
@@ -235,6 +236,25 @@ function App() {
     );
   };
 
+  // NEW: Enhanced weekly planner with persistence
+  useEffect(() => {
+    const saved = localStorage.getItem('famealy_weeklyPlan');
+    if (saved) {
+      setWeeklyPlan(JSON.parse(saved));
+    } else {
+      // Initialize with empty week
+      const days = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'];
+      setWeeklyPlan(days.map(day => ({ day, meal: null, customText: '' })));
+    }
+  }, []);
+
+  // Save weekly plan to localStorage whenever it changes
+  useEffect(() => {
+    if (weeklyPlan.length > 0) {
+      localStorage.setItem('famealy_weeklyPlan', JSON.stringify(weeklyPlan));
+    }
+  }, [weeklyPlan]);
+
   const generateWeeklyPlan = () => {
     if (suggestions.length < 7) {
       alert('Generieren Sie mindestens 7 Menüvorschläge für einen Wochenplan!');
@@ -244,19 +264,132 @@ function App() {
     const days = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'];
     const plan = days.map((day, index) => ({
       day,
-      meal: suggestions[index] || null
+      meal: suggestions[index] || null,
+      customText: ''
     }));
 
     setWeeklyPlan(plan);
     setShowWeeklyPlanner(true);
   };
 
-  const updateWeeklyPlanDay = (dayIndex, newMeal) => {
+  const addMealToWeeklyPlan = (meal) => {
+    if (weeklyPlan.length === 0) {
+      const days = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'];
+      setWeeklyPlan(days.map(day => ({ day, meal: null, customText: '' })));
+    }
+
+    // Find first empty day slot
     setWeeklyPlan(prev => {
       const updated = [...prev];
-      updated[dayIndex] = { ...updated[dayIndex], meal: newMeal };
+      const emptyIndex = updated.findIndex(d => !d.meal && !d.customText);
+
+      if (emptyIndex >= 0) {
+        updated[emptyIndex] = { ...updated[emptyIndex], meal };
+        setShowWeeklyPlanner(true);
+        setCopyFeedback(`${meal.name} zu ${updated[emptyIndex].day} hinzugefügt!`);
+        setTimeout(() => setCopyFeedback(''), 3000);
+      } else {
+        alert('Wochenplan ist voll! Bitte entfernen Sie zuerst ein Gericht.');
+      }
+
       return updated;
     });
+  };
+
+  const updateWeeklyPlanDay = (dayIndex, meal) => {
+    setWeeklyPlan(prev => {
+      const updated = [...prev];
+      updated[dayIndex] = { ...updated[dayIndex], meal, customText: '' };
+      return updated;
+    });
+  };
+
+  const updateWeeklyPlanCustomText = (dayIndex, text) => {
+    setWeeklyPlan(prev => {
+      const updated = [...prev];
+      updated[dayIndex] = { ...updated[dayIndex], customText: text, meal: null };
+      return updated;
+    });
+  };
+
+  const clearWeeklyPlanDay = (dayIndex) => {
+    setWeeklyPlan(prev => {
+      const updated = [...prev];
+      updated[dayIndex] = { day: updated[dayIndex].day, meal: null, customText: '' };
+      return updated;
+    });
+  };
+
+  const clearWeeklyPlan = () => {
+    if (window.confirm('Möchten Sie den gesamten Wochenplan löschen?')) {
+      const days = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'];
+      setWeeklyPlan(days.map(day => ({ day, meal: null, customText: '' })));
+    }
+  };
+
+  const exportWeeklyShoppingList = () => {
+    const allIngredients = [];
+
+    weeklyPlan.forEach(({ day, meal }) => {
+      if (meal && meal.ingredients) {
+        meal.ingredients.forEach(ing => {
+          const existing = allIngredients.find(item => item.name === ing.name);
+          if (existing) {
+            // Consolidate same ingredient
+            existing.days.push(day);
+          } else {
+            allIngredients.push({
+              name: ing.name,
+              amount: ing.amount,
+              onPromo: ing.onPromo && ing.retailer === selectedRetailer,
+              originalPrice: ing.originalPrice,
+              promoPrice: ing.promoPrice,
+              savings: ing.savings,
+              days: [day]
+            });
+          }
+        });
+      }
+    });
+
+    // Format shopping list
+    let text = '📅 WOCHENEINKAUFSLISTE\n';
+    text += '='.repeat(50) + '\n\n';
+
+    // Group by promo/non-promo
+    const promoItems = allIngredients.filter(i => i.onPromo);
+    const regularItems = allIngredients.filter(i => !i.onPromo);
+
+    if (promoItems.length > 0) {
+      text += '🏷️ AKTIONEN:\n';
+      promoItems.forEach(item => {
+        text += `\n• ${item.name} - ${item.amount}`;
+        if (item.savings) {
+          text += ` (CHF ${item.savings.toFixed(2)} gespart)`;
+        }
+        text += `\n  Benötigt für: ${item.days.join(', ')}`;
+      });
+      text += '\n\n';
+    }
+
+    if (regularItems.length > 0) {
+      text += 'WEITERE ZUTATEN:\n';
+      regularItems.forEach(item => {
+        text += `\n• ${item.name} - ${item.amount}`;
+        text += `\n  Benötigt für: ${item.days.join(', ')}`;
+      });
+    }
+
+    // Calculate total savings
+    const totalSavings = promoItems.reduce((sum, item) => sum + (item.savings || 0), 0);
+    if (totalSavings > 0) {
+      text += `\n\n${'='.repeat(50)}\n`;
+      text += `💰 WOCHENERSPARNIS: CHF ${totalSavings.toFixed(2)}\n`;
+    }
+
+    navigator.clipboard.writeText(text);
+    setCopyFeedback('📋 Wocheneinkaufsliste wurde kopiert!');
+    setTimeout(() => setCopyFeedback(''), 3000);
   };
 
   return (
@@ -375,68 +508,132 @@ function App() {
             </div>
 
             <div className="meals-grid">
-              {suggestions.map(meal => (
-                <div key={meal.id} className="meal-card">
-                  <div className="meal-header">
-                    <h3>{meal.name}</h3>
-                    <button
-                      className={`favorite-button ${favorites.includes(meal.id) ? 'active' : ''}`}
-                      onClick={() => toggleFavorite(meal.id)}
-                      title={favorites.includes(meal.id) ? 'Von Favoriten entfernen' : 'Zu Favoriten hinzufügen'}
-                    >
-                      {favorites.includes(meal.id) ? '⭐' : '☆'}
-                    </button>
-                  </div>
+              {suggestions.map(meal => {
+                // Calculate total savings for this meal
+                const promoIngredients = meal.ingredients.filter(ing =>
+                  ing.onPromo && ing.retailer === selectedRetailer && ing.savings
+                );
+                const totalSavings = promoIngredients.reduce((sum, ing) => sum + ing.savings, 0);
+                const totalOriginal = promoIngredients.reduce((sum, ing) => sum + (ing.originalPrice || 0), 0);
+                const totalPromo = promoIngredients.reduce((sum, ing) => sum + (ing.promoPrice || 0), 0);
+                const savingsPercent = totalOriginal > 0 ? Math.round((totalSavings / totalOriginal) * 100) : 0;
 
-                  <div className="meal-badges">
-                    <span className="category-badge">{meal.category}</span>
-                    {meal.promoCount > 0 && (
-                      <span className="promo-badge">
-                        🏷️ {meal.promoCount} {selectedRetailer}-Aktionen
-                      </span>
+                return (
+                  <div key={meal.id} className="meal-card">
+                    <div className="meal-header">
+                      <h3>{meal.name}</h3>
+                      <button
+                        className={`favorite-button ${favorites.includes(meal.id) ? 'active' : ''}`}
+                        onClick={() => toggleFavorite(meal.id)}
+                        title={favorites.includes(meal.id) ? 'Von Favoriten entfernen' : 'Zu Favoriten hinzufügen'}
+                      >
+                        {favorites.includes(meal.id) ? '⭐' : '☆'}
+                      </button>
+                    </div>
+
+                    <div className="meal-badges">
+                      <span className="category-badge">{meal.category}</span>
+                      {meal.promoCount > 0 && (
+                        <span className="promo-badge">
+                          🏷️ {meal.promoCount} {selectedRetailer}-Aktionen
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="meal-info">
+                      <span className="info-item">⏱️ {meal.prepTime} Min.</span>
+                      <span className="info-item">👥 {meal.servings} Portionen</span>
+                      {meal.nutrition && (
+                        <span className="info-item">🔥 {meal.nutrition.calories} kcal</span>
+                      )}
+                    </div>
+
+                    {/* SAVINGS SUMMARY - NEW */}
+                    {totalSavings > 0 && (
+                      <div className="savings-summary">
+                        <div className="savings-header">
+                          <strong>💰 Gesamtersparnis:</strong>
+                          <span className="savings-amount">CHF {totalSavings.toFixed(2)} (-{savingsPercent}%)</span>
+                        </div>
+                        <div className="savings-details">
+                          <div className="price-comparison">
+                            <span className="original-total">Regulär: CHF {totalOriginal.toFixed(2)}</span>
+                            <span className="promo-total">Mit Aktionen: CHF {totalPromo.toFixed(2)}</span>
+                          </div>
+                        </div>
+                        <div className="savings-meter">
+                          <div className="meter-bar">
+                            <div
+                              className="meter-fill"
+                              style={{width: `${Math.min(meal.savingsRatio || 0, 100)}%`}}
+                            ></div>
+                          </div>
+                          <div className="meter-label">{meal.savingsRatio || 0}% der Zutaten im Angebot</div>
+                        </div>
+                      </div>
                     )}
-                  </div>
 
-                  <div className="meal-info">
-                    <span className="info-item">⏱️ {meal.prepTime} Min.</span>
-                    <span className="info-item">👥 {meal.servings} Portionen</span>
-                    {meal.nutrition && (
-                      <span className="info-item">🔥 {meal.nutrition.calories} kcal</span>
-                    )}
-                  </div>
+                    {/* INGREDIENTS WITH PRICING - ENHANCED */}
+                    <div className="ingredients">
+                      <strong>Zutaten:</strong>
+                      <ul>
+                        {meal.ingredients.map((ing, idx) => {
+                          const isPromo = ing.onPromo && ing.retailer === selectedRetailer;
 
-                  <div className="ingredients">
-                    <strong>Zutaten:</strong>
-                    <ul>
-                      {meal.ingredients.map((ing, idx) => (
-                        <li key={idx} className={ing.onPromo && ing.retailer === selectedRetailer ? 'promo-item' : ''}>
-                          {ing.name} - {ing.amount}
-                          {ing.onPromo && ing.retailer === selectedRetailer && (
-                            <span className="promo-tag">🏷️ Aktion</span>
-                          )}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+                          return (
+                            <li key={idx} className={isPromo ? 'promo-item' : ''}>
+                              <div className="ingredient-main">
+                                <span className="ingredient-name">{ing.name} - {ing.amount}</span>
+                                {isPromo && ing.originalPrice && (
+                                  <div className="ingredient-pricing">
+                                    <span className="price-original">CHF {ing.originalPrice.toFixed(2)}</span>
+                                    <span className="price-promo">CHF {ing.promoPrice.toFixed(2)}</span>
+                                    <span className="price-discount">-{ing.discountPercent}%</span>
+                                  </div>
+                                )}
+                              </div>
+                              {isPromo && (
+                                <div className="promo-details">
+                                  <span className="promo-tag">
+                                    🏷️ CHF {ing.savings?.toFixed(2)} gespart
+                                  </span>
+                                  {ing.promoEndDate && (
+                                    <span className="promo-expires">
+                                      ⏰ Bis {new Date(ing.promoEndDate).toLocaleDateString('de-CH')}
+                                    </span>
+                                  )}
+                                </div>
+                              )}
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </div>
 
-                  <div className="meal-actions">
-                    <button
-                      className="action-button recipe-button"
-                      onClick={() => handleSearchRecipe(meal)}
-                    >
-                      📖 Rezept suchen
-                    </button>
-                    <button
-                      className="action-button shopping-button"
-                      onClick={() => handleExportShoppingList(meal)}
-                    >
-                      🛒 Einkaufsliste
-                    </button>
-                  </div>
+                    <div className="meal-actions">
+                      <button
+                        className="action-button recipe-button"
+                        onClick={() => handleSearchRecipe(meal)}
+                      >
+                        📖 Rezept suchen
+                      </button>
+                      <button
+                        className="action-button shopping-button"
+                        onClick={() => handleExportShoppingList(meal)}
+                      >
+                        🛒 Einkaufsliste
+                      </button>
+                      <button
+                        className="action-button add-to-plan-button"
+                        onClick={() => addMealToWeeklyPlan(meal)}
+                      >
+                        📅 Zu Wochenplan
+                      </button>
+                    </div>
 
-                  {selectedMeal?.id === meal.id && recipeUrls.length > 0 && (
-                    <div className="recipe-links">
-                      <h4>Rezepte online finden:</h4>
+                    {selectedMeal?.id === meal.id && recipeUrls.length > 0 && (
+                      <div className="recipe-links">
+                        <h4>Rezepte online finden:</h4>
                       {recipeUrls.map((url, idx) => (
                         <a
                           key={idx}
@@ -456,38 +653,152 @@ function App() {
           </div>
         )}
 
-        {/* Weekly Planner */}
+        {/* Enhanced Weekly Planner */}
         {showWeeklyPlanner && weeklyPlan.length > 0 && (
           <div className="weekly-planner">
-            <h2>📅 Wochenplan</h2>
+            <div className="weekly-planner-header">
+              <h2>📅 Wochenplan</h2>
+              <div className="planner-actions">
+                <button className="export-weekly-button" onClick={exportWeeklyShoppingList}>
+                  🛒 Wocheneinkaufsliste
+                </button>
+                <button className="clear-plan-button" onClick={clearWeeklyPlan}>
+                  🗑️ Plan löschen
+                </button>
+              </div>
+            </div>
+
             <div className="weekly-plan-grid">
-              {weeklyPlan.map((dayPlan, index) => (
-                <div key={index} className="day-plan">
-                  <h3>{dayPlan.day}</h3>
-                  {dayPlan.meal ? (
-                    <div className="day-meal">
-                      <div className="day-meal-name">{dayPlan.meal.name}</div>
-                      <small>⏱️ {dayPlan.meal.prepTime} Min.</small>
-                      <select
-                        className="change-meal-select"
-                        value={dayPlan.meal.id}
-                        onChange={(e) => {
-                          const newMeal = suggestions.find(m => m.id === parseInt(e.target.value));
-                          updateWeeklyPlanDay(index, newMeal);
-                        }}
-                      >
-                        {suggestions.map(meal => (
-                          <option key={meal.id} value={meal.id}>
-                            {meal.name}
-                          </option>
-                        ))}
-                      </select>
+              {weeklyPlan.map((dayPlan, index) => {
+                const hasMeal = dayPlan.meal !== null;
+                const hasCustom = dayPlan.customText && dayPlan.customText.trim() !== '';
+
+                return (
+                  <div key={index} className="day-plan">
+                    <div className="day-plan-header">
+                      <h3>{dayPlan.day}</h3>
+                      {(hasMeal || hasCustom) && (
+                        <button
+                          className="clear-day-button"
+                          onClick={() => clearWeeklyPlanDay(index)}
+                          title="Tag löschen"
+                        >
+                          ×
+                        </button>
+                      )}
                     </div>
-                  ) : (
-                    <div className="no-meal">Kein Gericht</div>
-                  )}
+
+                    {hasMeal ? (
+                      <div className="day-meal">
+                        <div className="day-meal-name">{dayPlan.meal.name}</div>
+                        <small className="day-meal-info">
+                          ⏱️ {dayPlan.meal.prepTime} Min. | 👥 {dayPlan.meal.servings} Pers.
+                        </small>
+                        {dayPlan.meal.promoCount > 0 && (
+                          <div className="day-meal-promos">
+                            🏷️ {dayPlan.meal.promoCount} Aktionen
+                          </div>
+                        )}
+
+                        {suggestions.length > 0 && (
+                          <select
+                            className="change-meal-select"
+                            value={dayPlan.meal.id}
+                            onChange={(e) => {
+                              const newMeal = suggestions.find(m => m.id === parseInt(e.target.value));
+                              if (newMeal) updateWeeklyPlanDay(index, newMeal);
+                            }}
+                          >
+                            <option value="">-- Gericht wechseln --</option>
+                            {suggestions.map(meal => (
+                              <option key={meal.id} value={meal.id}>
+                                {meal.name}
+                              </option>
+                            ))}
+                          </select>
+                        )}
+                      </div>
+                    ) : hasCustom ? (
+                      <div className="day-custom">
+                        <div className="custom-meal-display">{dayPlan.customText}</div>
+                        <input
+                          type="text"
+                          className="custom-meal-input"
+                          value={dayPlan.customText}
+                          onChange={(e) => updateWeeklyPlanCustomText(index, e.target.value)}
+                          placeholder="z.B. Auswärts essen, Pizza bestellen..."
+                        />
+                      </div>
+                    ) : (
+                      <div className="day-empty">
+                        <div className="empty-options">
+                          {suggestions.length > 0 && (
+                            <select
+                              className="add-meal-select"
+                              onChange={(e) => {
+                                const meal = suggestions.find(m => m.id === parseInt(e.target.value));
+                                if (meal) updateWeeklyPlanDay(index, meal);
+                              }}
+                            >
+                              <option value="">+ Gericht wählen</option>
+                              {suggestions.map(meal => (
+                                <option key={meal.id} value={meal.id}>
+                                  {meal.name}
+                                </option>
+                              ))}
+                            </select>
+                          )}
+                          <div className="or-divider">oder</div>
+                          <input
+                            type="text"
+                            className="custom-meal-input"
+                            placeholder="Eigenen Eintrag erstellen..."
+                            onBlur={(e) => {
+                              if (e.target.value.trim()) {
+                                updateWeeklyPlanCustomText(index, e.target.value);
+                              }
+                            }}
+                            onKeyPress={(e) => {
+                              if (e.key === 'Enter' && e.target.value.trim()) {
+                                updateWeeklyPlanCustomText(index, e.target.value);
+                              }
+                            }}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Weekly Summary */}
+            <div className="weekly-summary">
+              <h3>📊 Wochenübersicht</h3>
+              <div className="summary-stats">
+                <div className="stat">
+                  <div className="stat-value">{weeklyPlan.filter(d => d.meal || d.customText).length}/7</div>
+                  <div className="stat-label">Tage geplant</div>
                 </div>
-              ))}
+                <div className="stat">
+                  <div className="stat-value">
+                    {weeklyPlan.reduce((sum, d) => sum + (d.meal?.promoCount || 0), 0)}
+                  </div>
+                  <div className="stat-label">Aktionen</div>
+                </div>
+                <div className="stat">
+                  <div className="stat-value">
+                    CHF {weeklyPlan.reduce((sum, d) => {
+                      if (!d.meal) return sum;
+                      const savings = d.meal.ingredients
+                        .filter(ing => ing.onPromo && ing.retailer === selectedRetailer && ing.savings)
+                        .reduce((s, ing) => s + ing.savings, 0);
+                      return sum + savings;
+                    }, 0).toFixed(2)}
+                  </div>
+                  <div className="stat-label">Wochenersparnis</div>
+                </div>
+              </div>
             </div>
           </div>
         )}
