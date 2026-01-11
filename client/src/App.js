@@ -1,12 +1,72 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 
-// Retailer configuration - easy to extend
+// Retailer configuration - easy to extend for future phases
 const RETAILERS = [
   { id: 'Migros', name: 'Migros', regional: true },
   { id: 'Coop', name: 'Coop', regional: true },
   { id: 'Aldi Suisse', name: 'Aldi', regional: false }
 ];
+
+// Currently enabled retailers (Phase 1: Migros only)
+const ENABLED_RETAILERS = ['Migros'];
+
+// Migros cooperative mapping based on postal code
+const getMigrosCooperative = (plz) => {
+  if (!plz || plz.length < 4) return null;
+
+  const firstTwo = parseInt(plz.substring(0, 2));
+
+  // Migros Genève
+  if (firstTwo === 12) return 'Migros Genève';
+
+  // Migros Vaud
+  if (firstTwo === 10 || (firstTwo >= 13 && firstTwo <= 16)) return 'Migros Vaud';
+
+  // Migros Neuenburg-Freiburg
+  if (firstTwo === 17 || firstTwo === 20 || firstTwo === 25 || firstTwo === 26 || firstTwo === 27 || firstTwo === 28) {
+    return 'Migros Neuenburg-Freiburg';
+  }
+
+  // Migros Aare (Bern, Solothurn, parts of Aargau)
+  if (firstTwo === 30 || firstTwo === 31 || firstTwo === 32 || firstTwo === 33 ||
+      firstTwo === 34 || firstTwo === 35 || firstTwo === 36 || firstTwo === 37 ||
+      firstTwo === 38 || firstTwo === 45 || firstTwo === 46 ||
+      (firstTwo >= 47 && firstTwo <= 49) || firstTwo === 50 || firstTwo === 52 || firstTwo === 53) {
+    return 'Migros Aare';
+  }
+
+  // Migros Basel
+  if (firstTwo === 40 || firstTwo === 41 || firstTwo === 42 || firstTwo === 43 || firstTwo === 44) {
+    return 'Migros Basel';
+  }
+
+  // Migros Luzern (Zentralschweiz)
+  if (firstTwo === 60 || firstTwo === 61 || firstTwo === 62 || firstTwo === 63 || firstTwo === 64 || firstTwo === 65) {
+    return 'Migros Luzern';
+  }
+
+  // Migros Ticino
+  if (firstTwo === 69) return 'Migros Ticino';
+
+  // Migros Ostschweiz/Graubünden
+  if (firstTwo === 70 || firstTwo === 71 || firstTwo === 72 || firstTwo === 73 || firstTwo === 74 ||
+      firstTwo === 75 || firstTwo === 76 || firstTwo === 77 || firstTwo === 78 || firstTwo === 79 ||
+      firstTwo === 90 || firstTwo === 91 || firstTwo === 92 || firstTwo === 93 || firstTwo === 94 ||
+      firstTwo === 95 || firstTwo === 96 || firstTwo === 97 || firstTwo === 98 || firstTwo === 99) {
+    return 'Migros Ostschweiz';
+  }
+
+  // Migros Zürich
+  if (firstTwo >= 80 && firstTwo <= 86) return 'Migros Zürich';
+
+  // Migros Aargau (eastern part)
+  if (firstTwo === 51 || firstTwo === 54 || firstTwo === 55 || firstTwo === 56 || firstTwo === 57) {
+    return 'Migros Aare';
+  }
+
+  return 'Migros';
+};
 
 // Postal code to city mapping for Swiss regions
 const POSTAL_CODE_CITIES = {
@@ -58,7 +118,12 @@ function App() {
     () => localStorage.getItem('famealy_postalCode') || ''
   );
 
-  const [selectedRetailer, setSelectedRetailer] = useState(null);
+  // Auto-select Migros (Phase 1: Migros only)
+  const [selectedRetailer, setSelectedRetailer] = useState('Migros');
+  const [migrosCooperative, setMigrosCooperative] = useState(() => {
+    const savedPostalCode = localStorage.getItem('famealy_postalCode');
+    return savedPostalCode ? getMigrosCooperative(savedPostalCode) : null;
+  });
   const [cityName, setCityName] = useState(() => {
     const savedPostalCode = localStorage.getItem('famealy_postalCode');
     return savedPostalCode ? getCityFromPostalCode(savedPostalCode) : '';
@@ -91,11 +156,6 @@ function App() {
   }, [favorites]);
 
   const handleGetSuggestions = async () => {
-    if (!selectedRetailer) {
-      alert('Bitte wählen Sie zuerst einen Detailhändler aus!');
-      return;
-    }
-
     if (!postalCode) {
       alert('Bitte geben Sie Ihre Postleitzahl ein!');
       return;
@@ -211,47 +271,39 @@ function App() {
       </header>
 
       <div className="container">
-        {/* Step 1: Retailer Selection */}
         <div className="preferences-section">
-          <h2>1️⃣ Detailhändler wählen</h2>
-
-          <div className="retailer-buttons">
-            {RETAILERS.map(retailer => (
-              <button
-                key={retailer.id}
-                className={`retailer-button ${selectedRetailer === retailer.id ? 'active' : ''}`}
-                onClick={() => setSelectedRetailer(retailer.id)}
-              >
-                {retailer.name}
-              </button>
-            ))}
+          {/* Migros-only Phase 1 */}
+          <div className="migros-header">
+            <div className="migros-logo">🟠 Migros</div>
+            {migrosCooperative && <div className="migros-coop-badge">{migrosCooperative}</div>}
           </div>
 
-          {/* Step 2: Postal Code (if regional retailer) */}
-          {showPostalCode && (
-            <div className="postal-code-section">
-              <h2>2️⃣ Postleitzahl eingeben</h2>
-              <input
-                type="text"
-                placeholder="z.B. 3072"
-                maxLength="4"
-                value={postalCode}
-                onChange={(e) => {
-                  const value = e.target.value.replace(/\D/g, '');
-                  setPostalCode(value);
-                  const city = getCityFromPostalCode(value);
-                  setCityName(city);
-                }}
-                className="postal-code-input-large"
-              />
-              {cityName && <div className="city-name">📍 {cityName}</div>}
-              <small className="hint">Wird für nächste Session gespeichert</small>
-            </div>
-          )}
+          {/* Step 1: Postal Code */}
+          <div className="postal-code-section">
+            <h2>1️⃣ Postleitzahl eingeben</h2>
+            <input
+              type="text"
+              placeholder="z.B. 3072"
+              maxLength="4"
+              value={postalCode}
+              onChange={(e) => {
+                const value = e.target.value.replace(/\D/g, '');
+                setPostalCode(value);
+                const city = getCityFromPostalCode(value);
+                const coop = getMigrosCooperative(value);
+                setCityName(city);
+                setMigrosCooperative(coop);
+              }}
+              className="postal-code-input-large"
+            />
+            {cityName && <div className="city-name">📍 {cityName}</div>}
+            {migrosCooperative && <div className="migros-coop-name">🟠 {migrosCooperative}</div>}
+            <small className="hint">Wird für nächste Session gespeichert</small>
+          </div>
 
-          {/* Step 3: Parameters */}
+          {/* Step 2: Parameters */}
           <div className="parameters-section">
-            <h2>3️⃣ Parameter</h2>
+            <h2>2️⃣ Parameter</h2>
 
             <div className="param-group">
               <label>⏱️ Maximale Zubereitungszeit (Minuten):</label>
@@ -299,9 +351,9 @@ function App() {
           <button
             className="suggest-button"
             onClick={handleGetSuggestions}
-            disabled={loading || !selectedRetailer || !postalCode}
+            disabled={loading || !postalCode}
           >
-            {loading ? 'Suche Aktionen...' : '🔍 Menüvorschläge generieren'}
+            {loading ? 'Suche Migros-Aktionen...' : '🔍 Menüvorschläge generieren'}
           </button>
         </div>
 

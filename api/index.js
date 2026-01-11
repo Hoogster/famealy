@@ -35,6 +35,80 @@ function isPromoValidForRegion(ingredient, retailer, postalCode) {
   return true;
 }
 
+// Helper: Check if ingredient is a protein source
+function isProteinIngredient(ingredientName) {
+  const proteinKeywords = [
+    'fleisch', 'hack', 'rind', 'schwein', 'poulet', 'huhn', 'chicken',
+    'lachs', 'fisch', 'fish', 'salmon', 'thon', 'thunfisch',
+    'tofu', 'bohnen', 'linsen', 'kichererbsen'
+  ];
+  const nameLower = ingredientName.toLowerCase();
+  return proteinKeywords.some(keyword => nameLower.includes(keyword));
+}
+
+// Helper: Calculate intelligent score for meal based on promotions
+function calculateMealScore(meal, selectedRetailer, postalCode) {
+  const promoIngredients = meal.ingredients.filter(ing =>
+    isPromoValidForRegion(ing, selectedRetailer, postalCode)
+  );
+
+  const promoCount = promoIngredients.length;
+  const totalIngredients = meal.ingredients.length;
+
+  if (promoCount === 0) return 0;
+
+  // Base score: 10 points per promo item
+  let score = promoCount * 10;
+
+  // PROTEIN BONUS: +30 points for protein ingredients on promo
+  const hasProteinPromo = promoIngredients.some(ing =>
+    isProteinIngredient(ing.name)
+  );
+  if (hasProteinPromo) {
+    score += 30;
+  }
+
+  // SAVINGS RATIO BONUS: Percentage of ingredients on promo (0-40 points)
+  const promoRatio = promoCount / totalIngredients;
+  score += Math.floor(promoRatio * 40);
+
+  // VARIETY BONUS: Multiple different types of promos
+  const promoCategories = new Set();
+  promoIngredients.forEach(ing => {
+    if (isProteinIngredient(ing.name)) promoCategories.add('protein');
+    else if (ing.name.toLowerCase().includes('pasta') ||
+             ing.name.toLowerCase().includes('reis') ||
+             ing.name.toLowerCase().includes('kartoffel') ||
+             ing.name.toLowerCase().includes('hörnli')) {
+      promoCategories.add('starch');
+    } else if (ing.name.toLowerCase().includes('gemüse') ||
+               ing.name.toLowerCase().includes('salat') ||
+               ing.name.toLowerCase().includes('paprika') ||
+               ing.name.toLowerCase().includes('tomat') ||
+               ing.name.toLowerCase().includes('zucchetti')) {
+      promoCategories.add('vegetable');
+    } else {
+      promoCategories.add('other');
+    }
+  });
+
+  // Bonus for variety (different categories)
+  if (promoCategories.size >= 3) {
+    score += 25; // Excellent variety
+  } else if (promoCategories.size === 2) {
+    score += 15; // Good variety
+  }
+
+  // MULTIPLE PROMOS BONUS: Extra boost for many promos
+  if (promoCount >= 4) {
+    score += 20;
+  } else if (promoCount >= 3) {
+    score += 10;
+  }
+
+  return score;
+}
+
 module.exports = (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -96,17 +170,25 @@ module.exports = (req, res) => {
       return true;
     });
 
-    // Add promo count to each meal
-    const mealsWithPromoCount = validMeals.map(meal => {
+    // Calculate intelligent scores for each meal
+    const mealsWithScores = validMeals.map(meal => {
       const promoCount = meal.ingredients.filter(ing =>
         isPromoValidForRegion(ing, selectedRetailer, postalCode)
       ).length;
 
-      return { ...meal, promoCount };
+      const score = calculateMealScore(meal, selectedRetailer, postalCode);
+      const savingsRatio = Math.round((promoCount / meal.ingredients.length) * 100);
+
+      return {
+        ...meal,
+        promoCount,
+        savingsScore: score,
+        savingsRatio
+      };
     });
 
-    // Sort by promo count (most promos first)
-    const sortedMeals = mealsWithPromoCount.sort((a, b) => b.promoCount - a.promoCount);
+    // Sort by intelligent score (highest savings/best deals first)
+    const sortedMeals = mealsWithScores.sort((a, b) => b.savingsScore - a.savingsScore);
 
     const suggestions = sortedMeals.slice(0, count);
 
