@@ -2,14 +2,13 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 
 // Retailer configuration - easy to extend for future phases
-const RETAILERS = [
-  { id: 'Migros', name: 'Migros', regional: true },
-  { id: 'Coop', name: 'Coop', regional: true },
-  { id: 'Aldi Suisse', name: 'Aldi', regional: false }
-];
-
-// Currently enabled retailers (Phase 1: Migros only)
-const ENABLED_RETAILERS = ['Migros'];
+// Phase 1: Migros only (hardcoded)
+// Phase 2: Uncomment and add to ENABLED_RETAILERS = ['Migros', 'Coop']
+// const RETAILERS = [
+//   { id: 'Migros', name: 'Migros', regional: true },
+//   { id: 'Coop', name: 'Coop', regional: true },
+//   { id: 'Aldi Suisse', name: 'Aldi', regional: false }
+// ];
 
 // Migros cooperative mapping based on postal code
 const getMigrosCooperative = (plz) => {
@@ -119,7 +118,7 @@ function App() {
   );
 
   // Auto-select Migros (Phase 1: Migros only)
-  const [selectedRetailer, setSelectedRetailer] = useState('Migros');
+  const selectedRetailer = 'Migros'; // Hardcoded for Phase 1
   const [migrosCooperative, setMigrosCooperative] = useState(() => {
     const savedPostalCode = localStorage.getItem('famealy_postalCode');
     return savedPostalCode ? getMigrosCooperative(savedPostalCode) : null;
@@ -259,9 +258,6 @@ function App() {
       return updated;
     });
   };
-
-  const selectedRetailerObj = RETAILERS.find(r => r.id === selectedRetailer);
-  const showPostalCode = selectedRetailerObj?.regional;
 
   return (
     <div className="App">
