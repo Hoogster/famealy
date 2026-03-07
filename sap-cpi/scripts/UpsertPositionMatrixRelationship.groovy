@@ -2,29 +2,40 @@ import com.sap.gateway.ip.core.customdev.util.Message
 import groovy.json.JsonSlurper
 import groovy.json.JsonOutput
 import java.time.LocalDate
-import java.time.ZoneId
+import java.time.ZoneOffset
+import java.time.Instant
 
 /**
  * SAP CPI iFlow Script: Upsert cust_HRM in PositionMatrixRelationship
  *
- * Übernimmt den cust_HRM-Wert aus den Departements/Divisions und upsertet ihn
- * auf alle relevanten Zeitabschnitte der zugehörigen Positions in deren
- * PositionMatrixRelationship.
+ * Übernimmt den cust_HRM-Wert aus den gefilterten FODepartment/FODivision-
+ * Zeitabschnitten und generiert Upsert-Payloads für die zugehörigen
+ * PositionMatrixRelationship-Einträge.
  *
- * Berücksichtigt zukünftige Änderungen: Wenn sich cust_HRM auf einem Department
- * per z.B. 01.04.2026 ändert, wird dies zeitabschnittsgenau auf der Position
- * abgebildet.
+ * Zeitabschnittslogik:
+ * - Jeder Positions-Zeitabschnitt erhält den cust_HRM-Wert, der zum
+ *   jeweiligen Zeitpunkt auf dem Department/Division gültig ist
+ * - Zukünftige Änderungen werden berücksichtigt: Wenn cust_HRM auf einem
+ *   Department per z.B. 01.04.2026 ändert, wird ein neuer Zeitabschnitt
+ *   auf der PositionMatrixRelationship mit dem neuen Wert erstellt
+ *
+ * Voraussetzung: Position-Abfrage mit $expand=positionMatrixRelationshipNav
+ *
+ * Die generierten Upsert-Payloads werden anschliessend via SF OData V2
+ * Adapter (UPSERT-Modus oder Batch) an SuccessFactors gesendet.
  */
 def Message processData(Message message) {
+
+    def messageLog = messageLogFactory.getMessageLog(message)
 
     def body = message.getBody(String)
     def jsonSlurper = new JsonSlurper()
 
-    // Positions mit ihren PositionMatrixRelationships aus dem Body lesen
+    // Positions mit PositionMatrixRelationships aus dem Body lesen
     def positionsPayload = jsonSlurper.parseText(body)
     def positions = positionsPayload.d?.results ?: []
 
-    // Timelines aus den Properties (vom PreparePositionFilter-Skript gesetzt)
+    // Timelines aus Properties (vom PreparePositionFilter-Skript gesetzt)
     def deptHrmTimeline = jsonSlurper.parseText(
         message.getProperty("deptHrmTimeline")?.toString() ?: "{}"
     )
@@ -34,16 +45,18 @@ def Message processData(Message message) {
 
     def today = LocalDate.now()
 
-    // SuccessFactors OData V2 Datumsparser
-    def parsesfDate = { String dateStr ->
+    // -----------------------------------------------------------------
+    // SuccessFactors OData V2 Datumskonvertierung (UTC)
+    // -----------------------------------------------------------------
+    def parseSfDate = { String dateStr ->
         if (dateStr == null || dateStr.trim().isEmpty()) {
             return null
         }
         def matcher = (dateStr =~ /\/Date\((\-?\d+)\)\//)
         if (matcher.find()) {
             long millis = Long.parseLong(matcher.group(1))
-            return java.time.Instant.ofEpochMilli(millis)
-                .atZone(ZoneId.systemDefault())
+            return Instant.ofEpochMilli(millis)
+                .atZone(ZoneOffset.UTC)
                 .toLocalDate()
         }
         try {
@@ -53,197 +66,186 @@ def Message processData(Message message) {
         }
     }
 
-    // Hilfsfunktion: LocalDate -> SuccessFactors /Date(millis)/ Format
-    def tosfDate = { LocalDate date ->
+    def toSfDate = { LocalDate date ->
         if (date == null) return null
-        long millis = date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        long millis = date.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
         return "/Date(${millis})/"
     }
 
-    // ---------------------------------------------------------------
-    // Für jede Position den passenden cust_HRM-Wert ermitteln
-    // und PositionMatrixRelationship-Upserts vorbereiten
-    // ---------------------------------------------------------------
+    // -----------------------------------------------------------------
+    // Hilfsfunktion: Ermittelt den gültigen cust_HRM-Wert für ein
+    // bestimmtes Datum aus einer sortierten Timeline
+    // -----------------------------------------------------------------
+    def findHrmForDate = { List timeline, LocalDate targetDate ->
+        if (timeline == null || timeline.isEmpty() || targetDate == null) {
+            return null
+        }
+        // Timeline ist bereits nach effectiveStartDate sortiert
+        // Suche den Zeitabschnitt, in den targetDate fällt
+        def match = null
+        timeline.each { slice ->
+            def sliceStart = parseSfDate(slice.effectiveStartDate)
+            def sliceEnd = parseSfDate(slice.effectiveEndDate)
+            if (sliceStart != null && !targetDate.isBefore(sliceStart)) {
+                if (sliceEnd == null || !targetDate.isAfter(sliceEnd)) {
+                    match = slice.cust_HRM
+                }
+            }
+        }
+        return match
+    }
+
+    // -----------------------------------------------------------------
+    // Für jede Position die cust_HRM-Upserts vorbereiten
+    // -----------------------------------------------------------------
     def upsertPayloads = []
+    def processedPositions = 0
+    def skippedPositions = 0
 
     positions.each { position ->
         def positionCode = position.code
-        def positionStartDate = parsesfDate(position.effectiveStartDate)
-        def positionEndDate = parsesfDate(position.effectiveEndDate)
-
-        // Department und Division der Position auslesen
         def deptCode = position.department
         def divCode = position.division
 
-        // cust_HRM-Timeline für dieses Department und Division holen
+        if (positionCode == null) {
+            skippedPositions++
+            return // skip
+        }
+
+        // Timeline für das Department/Division dieser Position
         def deptTimeline = deptHrmTimeline[deptCode] ?: []
         def divTimeline = divHrmTimeline[divCode] ?: []
 
-        // Alle relevanten Zeitabschnitte der Position ermitteln
-        // (heute und Zukunft)
-        def positionMatrixRels = position.positionMatrixRelationshipNav?.results ?: []
-
-        // ---------------------------------------------------------------
-        // Zeitabschnitte aus Department-Timeline auf Position mappen
-        // ---------------------------------------------------------------
-        deptTimeline.each { deptSlice ->
-            def deptStart = parsesfDate(deptSlice.startDate)
-            def deptEnd = parsesfDate(deptSlice.endDate)
-            def custHRM = deptSlice.cust_HRM
-
-            if (deptStart == null || custHRM == null || custHRM.toString().trim().isEmpty()) {
-                return // continue
-            }
-
-            // Nur Zeitabschnitte ab heute berücksichtigen
-            if (deptEnd != null && deptEnd.isBefore(today)) {
-                return // continue
-            }
-
-            // Effektives Startdatum: Maximum aus Dept-Start und heute
-            def effectiveStart = deptStart.isBefore(today) ? today : deptStart
-
-            // Prüfen ob für diesen Zeitabschnitt bereits ein
-            // PositionMatrixRelationship existiert (Update) oder neu (Insert)
-            def existingRel = positionMatrixRels.find { rel ->
-                def relStart = parsesfDate(rel.effectiveStartDate)
-                def relType = rel.matrixRelationshipType
-                return relStart != null && relStart == effectiveStart &&
-                       relType == "cust_HRM_Department"
-            }
-
-            def upsertEntry = [
-                Position_code               : positionCode,
-                Position_effectiveStartDate : tosfDate(effectiveStart),
-                matrixRelationshipType      : "cust_HRM_Department",
-                cust_HRM                    : custHRM,
-                effectiveStartDate          : tosfDate(effectiveStart),
-                effectiveEndDate            : deptSlice.endDate,
-                __operation                 : existingRel ? "UPDATE" : "INSERT"
-            ]
-
-            // Bei Update die bestehende Relationship-ID mitgeben
-            if (existingRel) {
-                upsertEntry["Position_externalCode"] = existingRel.Position_externalCode
-            }
-
-            upsertPayloads << upsertEntry
+        if (deptTimeline.isEmpty() && divTimeline.isEmpty()) {
+            skippedPositions++
+            return // skip — keine relevanten Timelines
         }
 
-        // ---------------------------------------------------------------
-        // Zeitabschnitte aus Division-Timeline auf Position mappen
-        // ---------------------------------------------------------------
-        divTimeline.each { divSlice ->
-            def divStart = parsesfDate(divSlice.startDate)
-            def divEnd = parsesfDate(divSlice.endDate)
-            def custHRM = divSlice.cust_HRM
+        // Bestehende PositionMatrixRelationships laden
+        def existingRels = position.positionMatrixRelationshipNav?.results ?: []
 
-            if (divStart == null || custHRM == null || custHRM.toString().trim().isEmpty()) {
-                return // continue
-            }
-
-            if (divEnd != null && divEnd.isBefore(today)) {
-                return // continue
-            }
-
-            def effectiveStart = divStart.isBefore(today) ? today : divStart
-
-            def existingRel = positionMatrixRels.find { rel ->
-                def relStart = parsesfDate(rel.effectiveStartDate)
-                def relType = rel.matrixRelationshipType
-                return relStart != null && relStart == effectiveStart &&
-                       relType == "cust_HRM_Division"
-            }
-
-            def upsertEntry = [
-                Position_code               : positionCode,
-                Position_effectiveStartDate : tosfDate(effectiveStart),
-                matrixRelationshipType      : "cust_HRM_Division",
-                cust_HRM                    : custHRM,
-                effectiveStartDate          : tosfDate(effectiveStart),
-                effectiveEndDate            : divSlice.endDate,
-                __operation                 : existingRel ? "UPDATE" : "INSERT"
-            ]
-
-            if (existingRel) {
-                upsertEntry["Position_externalCode"] = existingRel.Position_externalCode
-            }
-
-            upsertPayloads << upsertEntry
+        // =============================================================
+        // Department cust_HRM -> PositionMatrixRelationship
+        // =============================================================
+        if (!deptTimeline.isEmpty()) {
+            processTimelineForPosition(
+                deptTimeline, existingRels, positionCode, position,
+                "department", today, parseSfDate, toSfDate, upsertPayloads
+            )
         }
 
-        // ---------------------------------------------------------------
-        // Zukünftige Änderungen: Zeitabschnitte splitten falls nötig
-        // Wenn ein Positions-Zeitabschnitt über eine cust_HRM-Änderung
-        // hinausgeht, muss an der Änderungsgrenze gesplittet werden
-        // ---------------------------------------------------------------
-        def allTimelineSlices = []
-        allTimelineSlices.addAll(deptTimeline.collect { it + [source: "Department"] })
-        allTimelineSlices.addAll(divTimeline.collect { it + [source: "Division"] })
-
-        // Sortiere nach Startdatum
-        allTimelineSlices.sort { a, b ->
-            def aStart = parsesfDate(a.startDate)
-            def bStart = parsesfDate(b.startDate)
-            if (aStart == null && bStart == null) return 0
-            if (aStart == null) return -1
-            if (bStart == null) return 1
-            return aStart.compareTo(bStart)
+        // =============================================================
+        // Division cust_HRM -> PositionMatrixRelationship
+        // =============================================================
+        if (!divTimeline.isEmpty()) {
+            processTimelineForPosition(
+                divTimeline, existingRels, positionCode, position,
+                "division", today, parseSfDate, toSfDate, upsertPayloads
+            )
         }
 
-        // Übergangs-Upserts: Wenn sich cust_HRM zwischen zwei
-        // aufeinanderfolgenden Zeitabschnitten ändert
-        def prevSlicesBySource = [:]
-        allTimelineSlices.each { slice ->
-            def source = slice.source
-            def prevSlice = prevSlicesBySource[source]
-
-            if (prevSlice != null) {
-                def prevHRM = prevSlice.cust_HRM?.toString()?.trim()
-                def currHRM = slice.cust_HRM?.toString()?.trim()
-                def currStart = parsesfDate(slice.startDate)
-
-                // Wenn sich cust_HRM ändert und das Änderungsdatum in der
-                // Zukunft liegt, einen expliziten Übergangs-Upsert erstellen
-                if (prevHRM != currHRM && currStart != null && !currStart.isBefore(today)) {
-                    def relType = source == "Department" ?
-                        "cust_HRM_Department" : "cust_HRM_Division"
-
-                    // Prüfen ob nicht bereits ein Upsert für dieses Datum existiert
-                    def alreadyExists = upsertPayloads.any { p ->
-                        p.Position_code == positionCode &&
-                        p.matrixRelationshipType == relType &&
-                        p.effectiveStartDate == tosfDate(currStart)
-                    }
-
-                    if (!alreadyExists) {
-                        upsertPayloads << [
-                            Position_code               : positionCode,
-                            Position_effectiveStartDate : tosfDate(currStart),
-                            matrixRelationshipType      : relType,
-                            cust_HRM                    : currHRM,
-                            effectiveStartDate          : tosfDate(currStart),
-                            effectiveEndDate            : slice.endDate,
-                            __operation                 : "UPSERT"
-                        ]
-                    }
-                }
-            }
-            prevSlicesBySource[source] = slice
-        }
+        processedPositions++
     }
 
-    // ---------------------------------------------------------------
-    // Ergebnis: Upsert-Payloads als Body setzen
-    // ---------------------------------------------------------------
+    // -----------------------------------------------------------------
+    // Ergebnis zusammenstellen
+    // -----------------------------------------------------------------
     def result = [
-        totalPositions     : positions.size(),
-        totalUpserts       : upsertPayloads.size(),
-        upsertPayloads     : upsertPayloads
+        d: [
+            results: upsertPayloads
+        ],
+        __metadata: [
+            totalPositions    : positions.size(),
+            processedPositions: processedPositions,
+            skippedPositions  : skippedPositions,
+            totalUpserts      : upsertPayloads.size(),
+            generatedAt       : today.toString()
+        ]
     ]
 
     message.setBody(JsonOutput.prettyPrint(JsonOutput.toJson(result)))
     message.setProperty("upsertCount", upsertPayloads.size().toString())
+    message.setProperty("processedPositions", processedPositions.toString())
+
+    messageLog.addAttachmentAsString("UpsertSummary",
+        "Positions: ${processedPositions} verarbeitet, ${skippedPositions} übersprungen. " +
+        "Upserts: ${upsertPayloads.size()}", "text/plain")
+    messageLog.addAttachmentAsString("UpsertPayloads",
+        JsonOutput.prettyPrint(JsonOutput.toJson(upsertPayloads)), "application/json")
 
     return message
+}
+
+/**
+ * Verarbeitet eine cust_HRM-Timeline (Department oder Division) und erstellt
+ * die entsprechenden Upsert-Einträge für PositionMatrixRelationship.
+ *
+ * Logik für zukünftige Änderungen:
+ * - Für jeden Zeitabschnitt in der Timeline, der ab heute gültig ist,
+ *   wird ein separater Upsert-Eintrag erstellt
+ * - Wenn sich cust_HRM zwischen aufeinanderfolgenden Zeitabschnitten ändert,
+ *   wird an der Änderungsgrenze ein neuer Eintrag mit dem neuen Wert erstellt
+ * - Bestehende PositionMatrixRelationship-Einträge werden als Update behandelt
+ */
+def processTimelineForPosition(
+    List timeline, List existingRels, String positionCode, Map position,
+    String source, LocalDate today, Closure parseSfDate, Closure toSfDate,
+    List upsertPayloads
+) {
+    // matrixRelationshipType gemäss Kundenfeld-Konvention
+    def relType = "cust_HRM"
+
+    timeline.each { slice ->
+        def sliceStart = parseSfDate(slice.effectiveStartDate)
+        def sliceEnd = parseSfDate(slice.effectiveEndDate)
+        def custHRM = slice.cust_HRM?.toString()?.trim()
+
+        if (sliceStart == null || custHRM == null || custHRM.isEmpty()) {
+            return // skip
+        }
+
+        // Nur Zeitabschnitte ab heute berücksichtigen
+        if (sliceEnd != null && sliceEnd.isBefore(today)) {
+            return // skip — liegt komplett in der Vergangenheit
+        }
+
+        // Effektives Startdatum: Maximum aus Slice-Start und heute
+        // Für den aktuell gültigen Zeitabschnitt setzen wir heute als Start
+        def effectiveStart = sliceStart.isBefore(today) ? today : sliceStart
+
+        // Prüfe ob bereits ein PositionMatrixRelationship-Eintrag
+        // für diesen Zeitabschnitt und Typ existiert
+        def existingRel = existingRels.find { rel ->
+            def relStart = parseSfDate(rel.effectiveStartDate)
+            return relStart != null &&
+                   relStart == effectiveStart &&
+                   rel.matrixRelationshipType == relType
+        }
+
+        // Upsert-Payload gemäss SF OData V2 Entity-Struktur
+        // PositionMatrixRelationship Schlüsselfelder:
+        //   - Position_code
+        //   - Position_effectiveStartDate
+        //   - matrixRelationshipType
+        def upsertEntry = [
+            __metadata: [
+                uri : "PositionMatrixRelationship(" +
+                      "Position_code='${positionCode}'," +
+                      "Position_effectiveStartDate=${toSfDate(effectiveStart)}," +
+                      "matrixRelationshipType='${relType}')",
+                type: "SFOData.PositionMatrixRelationship"
+            ],
+            Position_code              : positionCode,
+            Position_effectiveStartDate: toSfDate(effectiveStart),
+            matrixRelationshipType     : relType,
+            cust_HRM                   : custHRM
+        ]
+
+        // Für bestehende Einträge: URI für HTTP MERGE/PUT setzen
+        if (existingRel != null && existingRel.__metadata?.uri != null) {
+            upsertEntry.__metadata.uri = existingRel.__metadata.uri
+        }
+
+        upsertPayloads << upsertEntry
+    }
 }
