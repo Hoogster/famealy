@@ -19,6 +19,11 @@ import java.time.Instant
  *   Department per z.B. 01.04.2026 ändert, wird ein neuer Zeitabschnitt
  *   auf der PositionMatrixRelationship mit dem neuen Wert erstellt
  *
+ * WICHTIG: Entity-Feldnamen:
+ * - FODepartment/FODivision (FO-Entities): startDate, endDate
+ * - Position (MDF-Entity): effectiveStartDate, effectiveEndDate
+ * - PositionMatrixRelationship Key: Position_code, Position_effectiveStartDate, externalCode
+ *
  * Voraussetzung: Position-Abfrage mit $expand=positionMatrixRelationshipNav
  *
  * Die generierten Upsert-Payloads werden anschliessend via SF OData V2
@@ -31,11 +36,12 @@ def Message processData(Message message) {
     def body = message.getBody(String)
     def jsonSlurper = new JsonSlurper()
 
-    // Positions mit PositionMatrixRelationships aus dem Body lesen
+    // Positions (MDF-Entity) mit PositionMatrixRelationships aus dem Body lesen
     def positionsPayload = jsonSlurper.parseText(body)
     def positions = positionsPayload.d?.results ?: []
 
     // Timelines aus Properties (vom PreparePositionFilter-Skript gesetzt)
+    // Timeline-Felder verwenden FO-Feldnamen (startDate/endDate)
     def deptHrmTimeline = jsonSlurper.parseText(
         message.getProperty("deptHrmTimeline")?.toString() ?: "{}"
     )
@@ -70,29 +76,6 @@ def Message processData(Message message) {
         if (date == null) return null
         long millis = date.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
         return "/Date(${millis})/"
-    }
-
-    // -----------------------------------------------------------------
-    // Hilfsfunktion: Ermittelt den gültigen cust_HRM-Wert für ein
-    // bestimmtes Datum aus einer sortierten Timeline
-    // -----------------------------------------------------------------
-    def findHrmForDate = { List timeline, LocalDate targetDate ->
-        if (timeline == null || timeline.isEmpty() || targetDate == null) {
-            return null
-        }
-        // Timeline ist bereits nach effectiveStartDate sortiert
-        // Suche den Zeitabschnitt, in den targetDate fällt
-        def match = null
-        timeline.each { slice ->
-            def sliceStart = parseSfDate(slice.effectiveStartDate)
-            def sliceEnd = parseSfDate(slice.effectiveEndDate)
-            if (sliceStart != null && !targetDate.isBefore(sliceStart)) {
-                if (sliceEnd == null || !targetDate.isAfter(sliceEnd)) {
-                    match = slice.cust_HRM
-                }
-            }
-        }
-        return match
     }
 
     // -----------------------------------------------------------------
@@ -167,11 +150,13 @@ def Message processData(Message message) {
     message.setProperty("upsertCount", upsertPayloads.size().toString())
     message.setProperty("processedPositions", processedPositions.toString())
 
-    messageLog.addAttachmentAsString("UpsertSummary",
-        "Positions: ${processedPositions} verarbeitet, ${skippedPositions} übersprungen. " +
-        "Upserts: ${upsertPayloads.size()}", "text/plain")
-    messageLog.addAttachmentAsString("UpsertPayloads",
-        JsonOutput.prettyPrint(JsonOutput.toJson(upsertPayloads)), "application/json")
+    if (messageLog != null) {
+        messageLog.addAttachmentAsString("UpsertSummary",
+            "Positions: ${processedPositions} verarbeitet, ${skippedPositions} übersprungen. " +
+            "Upserts: ${upsertPayloads.size()}", "text/plain")
+        messageLog.addAttachmentAsString("UpsertPayloads",
+            JsonOutput.prettyPrint(JsonOutput.toJson(upsertPayloads)), "application/json")
+    }
 
     return message
 }
@@ -186,6 +171,14 @@ def Message processData(Message message) {
  * - Wenn sich cust_HRM zwischen aufeinanderfolgenden Zeitabschnitten ändert,
  *   wird an der Änderungsgrenze ein neuer Eintrag mit dem neuen Wert erstellt
  * - Bestehende PositionMatrixRelationship-Einträge werden als Update behandelt
+ *
+ * HINWEIS: Timeline-Daten stammen von FO-Entities und verwenden startDate/endDate.
+ * PositionMatrixRelationship ist ein MDF-Sub-Entity und verwendet effectiveStartDate.
+ *
+ * PositionMatrixRelationship Compound Key:
+ *   - Position_code (String)
+ *   - Position_effectiveStartDate (/Date(millis)/)
+ *   - externalCode (String, auto-generiert oder gesetzt)
  */
 def processTimelineForPosition(
     List timeline, List existingRels, String positionCode, Map position,
@@ -196,8 +189,9 @@ def processTimelineForPosition(
     def relType = "cust_HRM"
 
     timeline.each { slice ->
-        def sliceStart = parseSfDate(slice.effectiveStartDate)
-        def sliceEnd = parseSfDate(slice.effectiveEndDate)
+        // FO-Entity Feldnamen: startDate, endDate
+        def sliceStart = parseSfDate(slice.startDate)
+        def sliceEnd = parseSfDate(slice.endDate)
         def custHRM = slice.cust_HRM?.toString()?.trim()
 
         if (sliceStart == null || custHRM == null || custHRM.isEmpty()) {
@@ -214,7 +208,8 @@ def processTimelineForPosition(
         def effectiveStart = sliceStart.isBefore(today) ? today : sliceStart
 
         // Prüfe ob bereits ein PositionMatrixRelationship-Eintrag
-        // für diesen Zeitabschnitt und Typ existiert
+        // für diesen Zeitabschnitt existiert
+        // Key-Match über: Position_code + effectiveStartDate + matrixRelationshipType
         def existingRel = existingRels.find { rel ->
             def relStart = parseSfDate(rel.effectiveStartDate)
             return relStart != null &&
@@ -223,16 +218,13 @@ def processTimelineForPosition(
         }
 
         // Upsert-Payload gemäss SF OData V2 Entity-Struktur
-        // PositionMatrixRelationship Schlüsselfelder:
+        // PositionMatrixRelationship Compound Key:
         //   - Position_code
         //   - Position_effectiveStartDate
-        //   - matrixRelationshipType
+        //   - externalCode (wird bei Insert auto-generiert, bei Update aus bestehendem Eintrag)
         def upsertEntry = [
             __metadata: [
-                uri : "PositionMatrixRelationship(" +
-                      "Position_code='${positionCode}'," +
-                      "Position_effectiveStartDate=${toSfDate(effectiveStart)}," +
-                      "matrixRelationshipType='${relType}')",
+                uri : existingRel?.__metadata?.uri ?: "PositionMatrixRelationship",
                 type: "SFOData.PositionMatrixRelationship"
             ],
             Position_code              : positionCode,
@@ -241,9 +233,9 @@ def processTimelineForPosition(
             cust_HRM                   : custHRM
         ]
 
-        // Für bestehende Einträge: URI für HTTP MERGE/PUT setzen
-        if (existingRel != null && existingRel.__metadata?.uri != null) {
-            upsertEntry.__metadata.uri = existingRel.__metadata.uri
+        // Bei bestehendem Eintrag: externalCode für Key-Auflösung übernehmen
+        if (existingRel != null) {
+            upsertEntry.externalCode = existingRel.externalCode
         }
 
         upsertPayloads << upsertEntry

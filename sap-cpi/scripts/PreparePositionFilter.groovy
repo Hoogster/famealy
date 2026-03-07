@@ -10,9 +10,13 @@ import java.time.format.DateTimeFormatter
  * SAP CPI iFlow Script: Prepare Position Filter
  *
  * Filtert FODepartment und FODivision (SuccessFactors OData V2):
- * - Nur Zeitabschnitte mit effectiveEndDate >= heute (gültig heute oder zukünftig)
+ * - Nur Zeitabschnitte mit endDate >= heute (gültig heute oder zukünftig)
  * - Nur Zeitabschnitte mit effectiveStatus = 'A' (aktiv)
  * - Nur Zeitabschnitte mit nicht-leerem cust_HRM
+ *
+ * WICHTIG: FO-Entities (FODepartment, FODivision) verwenden die Feldnamen
+ * 'startDate' und 'endDate' — NICHT 'effectiveStartDate'/'effectiveEndDate',
+ * die nur bei MDF-Entities (z.B. Position) verwendet werden.
  *
  * Baut einen OData $filter für Position anhand der ermittelten
  * Department-/Division-Codes (direkte FK-Felder auf Position).
@@ -21,8 +25,8 @@ import java.time.format.DateTimeFormatter
  * abgefragt und als Properties übergeben, ODER als kombinierter Payload.
  *
  * Erwartete OData-Abfragen im iFlow (vor diesem Skript):
- *   FODepartment?$filter=effectiveEndDate ge datetime'...'&$select=externalCode,effectiveStartDate,effectiveEndDate,cust_HRM,effectiveStatus,name
- *   FODivision?$filter=effectiveEndDate ge datetime'...'&$select=externalCode,effectiveStartDate,effectiveEndDate,cust_HRM,effectiveStatus,name
+ *   FODepartment?$filter=endDate ge datetime'...'&$select=externalCode,startDate,endDate,cust_HRM,effectiveStatus,name
+ *   FODivision?$filter=endDate ge datetime'...'&$select=externalCode,startDate,endDate,cust_HRM,effectiveStatus,name
  */
 def Message processData(Message message) {
 
@@ -53,8 +57,10 @@ def Message processData(Message message) {
         try {
             return LocalDate.parse(dateStr, DateTimeFormatter.ISO_DATE)
         } catch (Exception e) {
-            messageLog.addAttachmentAsString("DateParseWarning",
-                "Konnte Datum nicht parsen: ${dateStr}", "text/plain")
+            if (messageLog != null) {
+                messageLog.addAttachmentAsString("DateParseWarning",
+                    "Konnte Datum nicht parsen: ${dateStr}", "text/plain")
+            }
             return null
         }
     }
@@ -94,22 +100,27 @@ def Message processData(Message message) {
         }
     }
 
-    messageLog.addAttachmentAsString("InputCounts",
-        "Departments: ${departmentsRaw.size()}, Divisions: ${divisionsRaw.size()}",
-        "text/plain")
+    if (messageLog != null) {
+        messageLog.addAttachmentAsString("InputCounts",
+            "Departments: ${departmentsRaw.size()}, Divisions: ${divisionsRaw.size()}",
+            "text/plain")
+    }
 
     // -----------------------------------------------------------------
     // FODepartment filtern
+    //
+    // FO-Entity Feldnamen: startDate, endDate (NICHT effectiveStartDate!)
+    //
     // Kriterien:
-    //   - effectiveEndDate >= heute (gültig heute oder in Zukunft)
+    //   - endDate >= heute (gültig heute oder in Zukunft)
     //   - effectiveStatus == 'A' (aktiv)
     //   - cust_HRM ist nicht leer
     // -----------------------------------------------------------------
     def filteredDepartments = []
 
     departmentsRaw.each { dept ->
-        def endDate = parseSfDate(dept.effectiveEndDate)
-        def startDate = parseSfDate(dept.effectiveStartDate)
+        def endDate = parseSfDate(dept.endDate)
+        def startDate = parseSfDate(dept.startDate)
         def status = dept.effectiveStatus?.toString()?.trim()
         def custHRM = dept.cust_HRM?.toString()?.trim()
 
@@ -124,23 +135,23 @@ def Message processData(Message message) {
 
         if (isCurrentOrFuture && isActive && hasHRM) {
             filteredDepartments << [
-                externalCode       : dept.externalCode,
-                effectiveStartDate : dept.effectiveStartDate,
-                effectiveEndDate   : dept.effectiveEndDate,
-                cust_HRM           : custHRM,
-                name               : dept.name_defaultValue ?: dept.name
+                externalCode : dept.externalCode,
+                startDate    : dept.startDate,
+                endDate      : dept.endDate,
+                cust_HRM     : custHRM,
+                name         : dept.name_defaultValue ?: dept.name
             ]
         }
     }
 
     // -----------------------------------------------------------------
-    // FODivision filtern (gleiche Kriterien)
+    // FODivision filtern (gleiche Kriterien, gleiche FO-Feldnamen)
     // -----------------------------------------------------------------
     def filteredDivisions = []
 
     divisionsRaw.each { div ->
-        def endDate = parseSfDate(div.effectiveEndDate)
-        def startDate = parseSfDate(div.effectiveStartDate)
+        def endDate = parseSfDate(div.endDate)
+        def startDate = parseSfDate(div.startDate)
         def status = div.effectiveStatus?.toString()?.trim()
         def custHRM = div.cust_HRM?.toString()?.trim()
 
@@ -154,18 +165,20 @@ def Message processData(Message message) {
 
         if (isCurrentOrFuture && isActive && hasHRM) {
             filteredDivisions << [
-                externalCode       : div.externalCode,
-                effectiveStartDate : div.effectiveStartDate,
-                effectiveEndDate   : div.effectiveEndDate,
-                cust_HRM           : custHRM,
-                name               : div.name_defaultValue ?: div.name
+                externalCode : div.externalCode,
+                startDate    : div.startDate,
+                endDate      : div.endDate,
+                cust_HRM     : custHRM,
+                name         : div.name_defaultValue ?: div.name
             ]
         }
     }
 
-    messageLog.addAttachmentAsString("FilteredCounts",
-        "Filtered Departments: ${filteredDepartments.size()}, " +
-        "Filtered Divisions: ${filteredDivisions.size()}", "text/plain")
+    if (messageLog != null) {
+        messageLog.addAttachmentAsString("FilteredCounts",
+            "Filtered Departments: ${filteredDepartments.size()}, " +
+            "Filtered Divisions: ${filteredDivisions.size()}", "text/plain")
+    }
 
     // -----------------------------------------------------------------
     // Eindeutige externalCodes sammeln
@@ -184,19 +197,8 @@ def Message processData(Message message) {
     // gefiltert (kein departmentNav/externalCode), sondern über die
     // direkten Fremdschlüssel-Felder auf der Position-Entität.
     // -----------------------------------------------------------------
-    def filterParts = []
-
-    uniqueDeptCodes.each { code ->
-        filterParts << "department eq '${code}'"
-    }
-
-    uniqueDivCodes.each { code ->
-        filterParts << "division eq '${code}'"
-    }
-
     def positionFilter = ""
-    if (!filterParts.isEmpty()) {
-        // Gruppierung: (dept1 or dept2) or (div1 or div2)
+    if (!uniqueDeptCodes.isEmpty() || !uniqueDivCodes.isEmpty()) {
         def deptFilters = uniqueDeptCodes.collect { "department eq '${it}'" }
         def divFilters = uniqueDivCodes.collect { "division eq '${it}'" }
 
@@ -212,8 +214,8 @@ def Message processData(Message message) {
 
     // -----------------------------------------------------------------
     // OData $expand für den Position-Request
-    // DepartmentNav und DivisionNav werden benötigt, um im zweiten Skript
-    // die cust_HRM-Zuordnung über die Navigation zu validieren
+    // Position ist ein MDF-Entity und verwendet effectiveStartDate
+    // positionMatrixRelationshipNav wird für den Abgleich im 2. Skript benötigt
     // -----------------------------------------------------------------
     def positionExpand = "departmentNav,divisionNav,positionMatrixRelationshipNav"
     def positionSelect = "code,effectiveStartDate,effectiveEndDate,department,division,externalName_defaultValue"
@@ -232,6 +234,9 @@ def Message processData(Message message) {
     // -----------------------------------------------------------------
     // Timeline-Zuordnung: externalCode -> sortierte Zeitabschnitte
     // Wird im UpsertPositionMatrixRelationship-Skript benötigt
+    //
+    // HINWEIS: In der Timeline verwenden wir die FO-Feldnamen
+    // (startDate/endDate), da die Daten von FODepartment/FODivision stammen.
     // -----------------------------------------------------------------
     def deptHrmTimeline = [:]
     filteredDepartments.each { dept ->
@@ -240,16 +245,16 @@ def Message processData(Message message) {
             deptHrmTimeline[code] = []
         }
         deptHrmTimeline[code] << [
-            effectiveStartDate : dept.effectiveStartDate,
-            effectiveEndDate   : dept.effectiveEndDate,
-            cust_HRM           : dept.cust_HRM
+            startDate : dept.startDate,
+            endDate   : dept.endDate,
+            cust_HRM  : dept.cust_HRM
         ]
     }
-    // Nach effectiveStartDate sortieren
+    // Nach startDate sortieren
     deptHrmTimeline.each { code, slices ->
         slices.sort { a, b ->
-            def aDate = parseSfDate(a.effectiveStartDate)
-            def bDate = parseSfDate(b.effectiveStartDate)
+            def aDate = parseSfDate(a.startDate)
+            def bDate = parseSfDate(b.startDate)
             return (aDate ?: LocalDate.MIN).compareTo(bDate ?: LocalDate.MIN)
         }
     }
@@ -261,15 +266,15 @@ def Message processData(Message message) {
             divHrmTimeline[code] = []
         }
         divHrmTimeline[code] << [
-            effectiveStartDate : div.effectiveStartDate,
-            effectiveEndDate   : div.effectiveEndDate,
-            cust_HRM           : div.cust_HRM
+            startDate : div.startDate,
+            endDate   : div.endDate,
+            cust_HRM  : div.cust_HRM
         ]
     }
     divHrmTimeline.each { code, slices ->
         slices.sort { a, b ->
-            def aDate = parseSfDate(a.effectiveStartDate)
-            def bDate = parseSfDate(b.effectiveStartDate)
+            def aDate = parseSfDate(a.startDate)
+            def bDate = parseSfDate(b.startDate)
             return (aDate ?: LocalDate.MIN).compareTo(bDate ?: LocalDate.MIN)
         }
     }
@@ -280,11 +285,13 @@ def Message processData(Message message) {
     // Body = OData-Filterstring für den nächsten Request-Step (Position-Abfrage)
     message.setBody(positionFilter)
 
-    messageLog.addAttachmentAsString("PositionFilter", positionFilter, "text/plain")
-    messageLog.addAttachmentAsString("DeptTimeline",
-        JsonOutput.prettyPrint(JsonOutput.toJson(deptHrmTimeline)), "application/json")
-    messageLog.addAttachmentAsString("DivTimeline",
-        JsonOutput.prettyPrint(JsonOutput.toJson(divHrmTimeline)), "application/json")
+    if (messageLog != null) {
+        messageLog.addAttachmentAsString("PositionFilter", positionFilter, "text/plain")
+        messageLog.addAttachmentAsString("DeptTimeline",
+            JsonOutput.prettyPrint(JsonOutput.toJson(deptHrmTimeline)), "application/json")
+        messageLog.addAttachmentAsString("DivTimeline",
+            JsonOutput.prettyPrint(JsonOutput.toJson(divHrmTimeline)), "application/json")
+    }
 
     return message
 }
